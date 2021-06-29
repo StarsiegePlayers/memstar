@@ -1,7 +1,22 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "memstar", "memstar.vcproj", "{9C6E0E08-A3CF-4497-9505-68B4B6EBF843}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "memstar", "memstar.vcxproj", "{9C6E0E08-A3CF-4497-9505-68B4B6EBF843}"
+EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Starsiege", "..\..\..\..\..\Dynamix\Starsiege\Starsiege.exe", "{D095E55C-5D77-4F9B-9283-3F039283D2F4}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = C:\Dynamix\Starsiege\Starsiege.exe
+		RemoteMachine = HP-LAPTOP
+		StartingDirectory = C:\Dynamix\Starsiege
+		Environment = Default
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		UseLegacyDebugEngines = No
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +28,13 @@ Global
 		{9C6E0E08-A3CF-4497-9505-68B4B6EBF843}.Debug|Win32.Build.0 = Debug|Win32
 		{9C6E0E08-A3CF-4497-9505-68B4B6EBF843}.Release|Win32.ActiveCfg = Release|Win32
 		{9C6E0E08-A3CF-4497-9505-68B4B6EBF843}.Release|Win32.Build.0 = Release|Win32
+		{D095E55C-5D77-4F9B-9283-3F039283D2F4}.Debug|Win32.ActiveCfg = Release|x86
+		{D095E55C-5D77-4F9B-9283-3F039283D2F4}.Release|Win32.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B257F1CA-E128-44F5-A76D-FBCE9F3331B8}
 	EndGlobalSection
 EndGlobal

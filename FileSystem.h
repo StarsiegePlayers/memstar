@@ -10,39 +10,39 @@
 
 class FileInfo {
 public:
-	virtual const char *Path( ) const = 0;
-	virtual bool Read( char *&buffer, int &size ) = 0;
+	virtual const char* Path() const = 0;
+	virtual bool Read(char*& buffer, int& size) = 0;
 };
 
 class DiskFile : public FileInfo {
 public:
-	DiskFile( const String &path ) { mPath = path; }
+	DiskFile(const String& path) { mPath = path; }
 
-	virtual const char *Path( ) const { 
-		return ( mPath.c_str( ) ); 
+	virtual const char* Path() const {
+		return (mPath.c_str());
 	}
 
-	virtual bool Read( char *&buffer, int &size ) {
-		if ( !mPath.Strlen( ) )
-			return ( false );
-		
-		HANDLE f = CreateFile( mPath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-		DWORD r;
-		
-		if ( f == INVALID_HANDLE_VALUE )
-			return ( false );
+	virtual bool Read(char*& buffer, int& size) {
+		if (!mPath.Strlen())
+			return (false);
 
-		size = ( GetFileSize( f, NULL ) );
-		buffer = new char[ size ];
-		if ( buffer && ReadFile( f, buffer, size, &r, NULL ) ) {
-			if ( r != size ) {
+		HANDLE f = CreateFile(mPath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		DWORD r;
+
+		if (f == INVALID_HANDLE_VALUE)
+			return (false);
+
+		size = (GetFileSize(f, NULL));
+		buffer = new char[size];
+		if (buffer && ReadFile(f, buffer, size, &r, NULL)) {
+			if (r != size) {
 				delete[] buffer;
-				buffer = ( NULL );
+				buffer = (NULL);
 			}
 		}
-		CloseHandle( f );
+		CloseHandle(f);
 
-		return ( buffer != NULL );
+		return (buffer != NULL);
 	}
 
 private:
@@ -51,25 +51,25 @@ private:
 
 class ZipFile : public FileInfo {
 public:
-	ZipFile( unzFile zip, int zip_size, int zip_offset ) : mZip(zip), mZipSize(zip_size), mZipOffset(zip_offset) { }
+	ZipFile(unzFile zip, int zip_size, int zip_offset) : mZip(zip), mZipSize(zip_size), mZipOffset(zip_offset) { }
 
-	virtual const char *Path( ) const { 
-		return ( "" );
+	virtual const char* Path() const {
+		return ("");
 	}
 
-	virtual bool Read( char *&buffer, int &size ) {
-		size = ( mZipSize );
-		buffer = new char[ mZipSize ];
-		unzSetOffset( mZip, mZipOffset );
-		if ( buffer && ( unzOpenCurrentFile( mZip ) == UNZ_OK ) ) {
-			if ( unzReadCurrentFile( mZip, buffer, mZipSize ) != mZipSize ) {
+	virtual bool Read(char*& buffer, int& size) {
+		size = (mZipSize);
+		buffer = new char[mZipSize];
+		unzSetOffset(mZip, mZipOffset);
+		if (buffer && (unzOpenCurrentFile(mZip) == UNZ_OK)) {
+			if (unzReadCurrentFile(mZip, buffer, mZipSize) != mZipSize) {
 				delete[] buffer;
-				buffer = ( NULL );
+				buffer = (NULL);
 			}
-			unzCloseCurrentFile( mZip );
+			unzCloseCurrentFile(mZip);
 		}
 
-		return ( buffer != NULL );
+		return (buffer != NULL);
 	}
 
 private:
@@ -81,10 +81,10 @@ private:
 
 class FileSystem {
 public:
-	typedef HashTable< 
-		String, FileInfo*, 
+	typedef HashTable<
+		String, FileInfo*,
 		IKeyCmp,
-		ValueDeleter<String,FileInfo*>
+		ValueDeleter<String, FileInfo*>
 	> FileHash;
 
 	typedef FileHash::Iterator Iterator;
@@ -92,65 +92,65 @@ public:
 	typedef List< unzFile > ZipList;
 	typedef ZipList::Iterator ZipIterator;
 
-	FileSystem( int hash_size ) : mFiles(hash_size) { }
-	FileSystem( ) : mFiles(256) { }
-	~FileSystem( ) { Clear( ); }
+	FileSystem(int hash_size) : mFiles(hash_size) { }
+	FileSystem() : mFiles(256) { }
+	~FileSystem() { Clear(); }
 
-	Iterator Begin( ) {
-		return ( mFiles.Begin( ) );
+	Iterator Begin() {
+		return (mFiles.Begin());
 	}
 
-	void Clear( ) {	
-		mFiles.Clear( );
+	void Clear() {
+		mFiles.Clear();
 
-		ZipIterator iter = mZipHandles.Begin( );
-		while ( iter != mZipHandles.End( ) ) {
-			unzClose( iter.value() );
+		ZipIterator iter = mZipHandles.Begin();
+		while (iter != mZipHandles.End()) {
+			unzClose(iter.value());
 			++iter;
 		}
-		mZipHandles.Clear( );
+		mZipHandles.Clear();
 	}
 
-	Iterator End( ) {
-		return ( mFiles.End( ) );
+	Iterator End() {
+		return (mFiles.End());
 	}
 
-	void Grok( const char *path ) {
-		Clear( );
+	void Grok(const char* path) {
+		Clear();
 
-		Scan( path, false ); // read in non-zips first
-		Scan( path, true );
+		Scan(path, false); // read in non-zips first
+		Scan(path, true);
 	}
 
-	void GrokNonZips( const char *path ) {
-		Clear( );
+	void GrokNonZips(const char* path) {
+		Clear();
 
-		Scan( path, false );
+		Scan(path, false);
 	}
 
-	bool Read( const String &name, char *&buffer, int &size ) {
-		FileInfo **info = ( mFiles.Find( name ) );
-		if ( !info )
-			return ( false );
+	bool Read(const String& name, char*& buffer, int& size) {
+		FileInfo** info = (mFiles.Find(name));
+		if (!info)
+			return (false);
 
-		return ( (*info)->Read( buffer, size ) );
+		return ((*info)->Read(buffer, size));
 	}
 
-	bool ReadTGA( const String &name, Texture &texture ) {		
-		char *buffer;
+	bool ReadTGA(const String& name, Texture& texture) {
+		char* buffer;
 		int size;
-		
-		if ( !Read( name, buffer, size ) ) 
-			return ( NULL );
 
-		bool ok = ( texture.LoadTGA( (unsigned char *)buffer ) );
+		if (!Read(name, buffer, size))
+			return (NULL);
+
+		bool ok = (texture.LoadTGA((unsigned char*)buffer));
 		delete[] buffer;
-		return ( ok );
+		return (ok);
 	}
 
 private:
-	void ProcessZip( const char *path );
-	void Scan( const char *path, bool zip_scan );
+	void ProcessZip(const char* path);
+	void Scan(const char* path, bool zip_scan);
 
 	FileHash mFiles;
 	ZipList mZipHandles;

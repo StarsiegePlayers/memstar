@@ -16,64 +16,64 @@ enum VariableType {
 
 namespace Console {
 
-void addFunction(const char *name, void *cb);
-void addVariable(const char *name, const void *address, const VariableType var_type);
-void echo(const char *fmt, ...);
-const char *execFunction(u32 argc, char *function, ...);
-void eval(const char *cmd);
-bool functionExists(const char *name);
-const char *getVariable(const char *name);
-void setVariable(const char *name, const char *value);
+	void addFunction(const char* name, void* cb);
+	void addVariable(const char* name, const void* address, const VariableType var_type);
+	void echo(const char* fmt, ...);
+	const char* execFunction(u32 argc, char* function, ...);
+	void eval(const char* cmd);
+	bool functionExists(const char* name);
+	const char* getVariable(const char* name);
+	void setVariable(const char* name, const char* value);
 
-extern List<const char *> variables, functions;
+	extern List<const char*> variables, functions;
 
-struct VariableConstructor {
-	VariableConstructor(const char *scripted, void *address, VariableType type) 
-		: mName(scripted), mAddress(address), mType(type), mNext(mFirst) {
-		
-		mFirst = ( this );
-	}
+	struct VariableConstructor {
+		VariableConstructor(const char* scripted, void* address, VariableType type)
+			: mName(scripted), mAddress(address), mType(type), mNext(mFirst) {
 
-	static void Process() {
-		VariableConstructor *node = mFirst;
-		for (; node; node = node->mNext) {
-			addVariable(node->mName, node->mAddress, node->mType);
-			variables.Push(node->mName);
+			mFirst = (this);
 		}
-	}
 
-protected:
-	const char *mName;
-	void *mAddress;
-	VariableType mType;
-	VariableConstructor *mNext;	
-
-	static VariableConstructor *mFirst;
-};
-
-struct ConsoleConstructor {
-	ConsoleConstructor(const char *scripted, void *cb) 
-		: mName(scripted), mCallback(cb), mNext(mFirst) {
-		
-		mFirst = ( this );
-	}
-
-	static void Process() {
-		ConsoleConstructor *node = mFirst;
-		for (; node; node = node->mNext) {
-			addFunction(node->mName, node->mCallback);
-			functions.Push(node->mName);
+		static void Process() {
+			VariableConstructor* node = mFirst;
+			for (; node; node = node->mNext) {
+				addVariable(node->mName, node->mAddress, node->mType);
+				variables.Push(node->mName);
+			}
 		}
-	}
-	
-protected:
-	const char *mName;
-	void *mCallback;
-	ConsoleConstructor *mNext;
-	int mPrivilegeLevel;
 
-	static ConsoleConstructor *mFirst;
-};
+	protected:
+		const char* mName;
+		void* mAddress;
+		VariableType mType;
+		VariableConstructor* mNext;
+
+		static VariableConstructor* mFirst;
+	};
+
+	struct ConsoleConstructor {
+		ConsoleConstructor(const char* scripted, void* cb)
+			: mName(scripted), mCallback(cb), mNext(mFirst) {
+
+			mFirst = (this);
+		}
+
+		static void Process() {
+			ConsoleConstructor* node = mFirst;
+			for (; node; node = node->mNext) {
+				addFunction(node->mName, node->mCallback);
+				functions.Push(node->mName);
+			}
+		}
+
+	protected:
+		const char* mName;
+		void* mCallback;
+		ConsoleConstructor* mNext;
+		int mPrivilegeLevel;
+
+		static ConsoleConstructor* mFirst;
+	};
 
 
 }; // namespace Console

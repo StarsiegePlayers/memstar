@@ -15,10 +15,10 @@
 
 class TargaHeader {
 public:
-	void LoadPalette( unsigned char *&input, RGBA *pal );
-	void LoadIndexed( unsigned char *input, RGBA *pixels, RGBA *pal );
-	void LoadRGB( unsigned char *input, RGBA *pixels );
-	
+	void LoadPalette(unsigned char*& input, RGBA* pal);
+	void LoadIndexed(unsigned char* input, RGBA* pixels, RGBA* pal);
+	void LoadRGB(unsigned char* input, RGBA* pixels);
+
 
 	unsigned char 	id_length, colormap_type, image_type;
 	unsigned short	colormap_index, colormap_length;
@@ -38,57 +38,57 @@ public:
 	/*
 		FUNCTIONS
 	*/
-	Texture( ) : mData(NULL), mHandle(0), mWidth(0), mHeight(0) { }
-	~Texture( ) { Free( ); }
-	
-	void AlphaBloom( int blur_radius, int actual_width, int actual_height );
+	Texture() : mData(NULL), mHandle(0), mWidth(0), mHeight(0) { }
+	~Texture() { Free(); }
 
-	static int CeilPow2( int x ) {
+	void AlphaBloom(int blur_radius, int actual_width, int actual_height);
+
+	static int CeilPow2(int x) {
 		int y = 1;
-		while ( y < x )
+		while (y < x)
 			y <<= 1;
 
-		return ( y );
+		return (y);
 	}
 
-	void Clear( int r, int g, int b, int a ) {
-		if ( !mData )
+	void Clear(int r, int g, int b, int a) {
+		if (!mData)
 			return;
-		RGBA color = RGBA( r, g, b, a );
-		for ( int i = 0; i < mWidth * mHeight; i++ )
-			mData[ i ] = color;
-	}	
+		RGBA color = RGBA(r, g, b, a);
+		for (int i = 0; i < mWidth * mHeight; i++)
+			mData[i] = color;
+	}
 
-	void Draw( float x, float y );
-	void DrawScaled( float x, float y, float scale_x, float scale_y );
-	void DrawCentered( float x, float y );
-	void DrawTo( float x, float y, float width, float height );
-	void DrawPartial( float x, float y, float percent, int flags );
-	void DrawRotated( float x, float y, float scale_x, float scale_y, float rotation );
+	void Draw(float x, float y);
+	void DrawScaled(float x, float y, float scale_x, float scale_y);
+	void DrawCentered(float x, float y);
+	void DrawTo(float x, float y, float width, float height);
+	void DrawPartial(float x, float y, float percent, int flags);
+	void DrawRotated(float x, float y, float scale_x, float scale_y, float rotation);
 
-	Texture *Duplicate( );
-	bool Duplicate( Texture &b ) const;
-	
-	bool Loaded( ) const { return ( mData != NULL ); }
-	bool LoadTGA( unsigned char *input );
-	bool New( int width, int height );
+	Texture* Duplicate();
+	bool Duplicate(Texture& b) const;
+
+	bool Loaded() const { return (mData != NULL); }
+	bool LoadTGA(unsigned char* input);
+	bool New(int width, int height);
 
 	// Virtuals
-	virtual void Free( );
-	virtual bool BindToGraphicsCard( );
-	virtual void UnloadFromGraphicsCard( );
+	virtual void Free();
+	virtual bool BindToGraphicsCard();
+	virtual void UnloadFromGraphicsCard();
 
 	// Operators
-	RGBA &operator()( int x, int y ) {
-		return ( mData[ y * mWidth + x  ] );
+	RGBA& operator()(int x, int y) {
+		return (mData[y * mWidth + x]);
 	}
 
 	/*
-		VARIABLES 
+		VARIABLES
 	*/
 	unsigned int mHandle;
 	int mWidth, mHeight;
-	RGBA *mData;
+	RGBA* mData;
 
 
 	/*
@@ -96,11 +96,11 @@ public:
 	*/
 	typedef HashTable< unsigned int, Texture* > Hash;
 
-	static void BuildMulTab( );
-	static void HalveTexture( RGBA *src, int srcX, int srcY, RGBA *dst, int dstX, int dstY );
-	static void UnloadAllFromGraphicsCard( );
+	static void BuildMulTab();
+	static void HalveTexture(RGBA* src, int srcX, int srcY, RGBA* dst, int dstX, int dstY);
+	static void UnloadAllFromGraphicsCard();
 
-	static unsigned int mMulTab[ 256 * 256 ];
+	static unsigned int mMulTab[256 * 256];
 	static bool mMulTabCalculated;
 
 	static Hash mTexturesLoadedToOpenGL;
@@ -110,21 +110,21 @@ public:
 
 class TextureWithMips : public Texture {
 public:
-	TextureWithMips( ) : Texture( ) {
-		memset( mMipMaps, 0, sizeof( mMipMaps ) );
+	TextureWithMips() : Texture() {
+		memset(mMipMaps, 0, sizeof(mMipMaps));
 	}
 
-	~TextureWithMips( ) {
-		FreeMipMaps( );
+	~TextureWithMips() {
+		FreeMipMaps();
 	}
-	
-	virtual void Free( );
-	void GenerateMipMaps( );
-	void FreeMipMaps( );
-	virtual bool BindToGraphicsCard( );
 
-//private:
-	Texture *mMipMaps[ 12 ];
+	virtual void Free();
+	void GenerateMipMaps();
+	void FreeMipMaps();
+	virtual bool BindToGraphicsCard();
+
+	//private:
+	Texture* mMipMaps[12];
 };
 
 #endif // __TEXTURE_H__

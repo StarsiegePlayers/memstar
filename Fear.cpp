@@ -2,17 +2,17 @@
 #include "Strings.h"
 
 namespace Fear {
-	#define SIM_PTR 0x0071CF5C
-	#define SIMSKY_VFT 0x0071265C
-	#define SIMSET_VFT 0x0071492C
-	#define SIMCANVAS_PTR 0x0077FAE8
+#define SIM_PTR 0x0071CF5C
+#define SIMSKY_VFT 0x0071265C
+#define SIMSET_VFT 0x0071492C
+#define SIMCANVAS_PTR 0x0077FAE8
 
-	Sim *Sim::Client() {
-		return *(Sim **)(SIM_PTR);
+	Sim* Sim::Client() {
+		return *(Sim**)(SIM_PTR);
 	}
 
 	template<class T>
-	T *Sim::findObject(const char *nameOrId) {
+	T* Sim::findObject(const char* nameOrId) {
 		if (!this)
 			return NULL;
 
@@ -21,22 +21,22 @@ namespace Fear {
 			push eax
 			mov edx, [nameOrId]
 			mov ecx, [eax]
-			call [ecx+0x6c]
+			call[ecx + 0x6c]
 			pop this
 		}
 	}
 
-	Sky *findSky() {
-		SimSet *render_set = Sim::Client()->findObject<SimSet>(13);
+	Sky* findSky() {
+		SimSet* render_set = Sim::Client()->findObject<SimSet>(13);
 		if (render_set->vft == SIMSET_VFT) {
 			for (SimSet::Iterator iter = render_set->Begin(); iter != render_set->End(); ++iter)
 				if ((*iter)->vft == SIMSKY_VFT)
-					return (Sky *)*iter;
+					return (Sky*)*iter;
 		}
 		return NULL;
 	}
 
-	PlayerPSC *findPSC() {
+	PlayerPSC* findPSC() {
 		return Sim::Client()->findObject<PlayerPSC>(636);
 	}
 
@@ -50,15 +50,15 @@ namespace Fear {
 		__asm {
 			mov eax, this
 			push eax
-			call [fnSkyCalcPoints]
+			call[fnSkyCalcPoints]
 			pop this
 		}
 	}
 
-	bool getScreenDimensions(Vector2i *dim) {
+	bool getScreenDimensions(Vector2i* dim) {
 		__asm {
 			// SimGui::Canvas
-			mov eax, ds:[SIMCANVAS_PTR]
+			mov eax, ds: [SIMCANVAS_PTR]
 			and eax, eax
 			jz done
 
@@ -73,11 +73,11 @@ namespace Fear {
 
 			mov edx, [dim]
 			mov ecx, [eax + 0x3c]
-			mov [edx + 0], ecx
+			mov[edx + 0], ecx
 			mov ecx, [eax + 0x40]
-			mov [edx + 4], ecx
+			mov[edx + 4], ecx
 			mov eax, 1
-	done:
+			done:
 		}
 	}
 

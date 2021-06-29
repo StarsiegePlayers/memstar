@@ -16,33 +16,33 @@ namespace Replacer {
 }
 
 namespace Terrain {
-	#define GridBlock_Material_Plain  ( 0 )
-	#define GridBlock_Material_Rotate ( 1 )
-	#define GridBlock_Material_FlipX  ( 2 )
-	#define GridBlock_Material_FlipY  ( 4 )
+#define GridBlock_Material_Plain  ( 0 )
+#define GridBlock_Material_Rotate ( 1 )
+#define GridBlock_Material_FlipX  ( 2 )
+#define GridBlock_Material_FlipY  ( 4 )
 
-	#define GridSquare_Pinned         ( 4 )
+#define GridSquare_Pinned         ( 4 )
 
 	struct HiddenTexture {
-		TextureWithMips *replacement, *originalUpsampled;
+		TextureWithMips* replacement, * originalUpsampled;
 		u32 stamp;
-		Fear::GFXBitmap *parent;
+		Fear::GFXBitmap* parent;
 	};
 
 	BuiltInVariable("pref::memstarTerrain", bool, prefMemstarTerrain, true)
 
-	RGBA canvas_1x1    [   1 *   1 ];
-	RGBA canvas_2x2    [   2 *   2 ];
-	RGBA canvas_4x4    [   4 *   4 ];
-	RGBA canvas_8x8    [   8 *   8 ];
-	RGBA canvas_16x16  [  16 *  16 ];
-	RGBA canvas_32x32  [  32 *  32 ];
-	RGBA canvas_64x64  [  64 *  64 ];
-	RGBA canvas_128x128[ 128 * 128 ];
-	RGBA canvas_256x256[ 256 * 256 ];
+		RGBA canvas_1x1[1 * 1];
+	RGBA canvas_2x2[2 * 2];
+	RGBA canvas_4x4[4 * 4];
+	RGBA canvas_8x8[8 * 8];
+	RGBA canvas_16x16[16 * 16];
+	RGBA canvas_32x32[32 * 32];
+	RGBA canvas_64x64[64 * 64];
+	RGBA canvas_128x128[128 * 128];
+	RGBA canvas_256x256[256 * 256];
 
-	RGBA canvasDefault[ 128 * 128 ];
-	RGBA *canvasMipList[] = {
+	RGBA canvasDefault[128 * 128];
+	RGBA* canvasMipList[] = {
 		canvas_256x256,
 		canvas_128x128,
 		canvas_64x64,
@@ -57,10 +57,10 @@ namespace Terrain {
 
 	// gathered data
 	u32 Xd, Yd, RotateFlag, TileWidth, MipWidth;
-	void *FixedUpMatMap, *PrimaryMatMap, *SecondaryMatMap;
-	void *BaseAddr = NULL;
-	Fear::GFXBitmap *SrcBM;
-	RGBA **targetCanvas;
+	void* FixedUpMatMap, * PrimaryMatMap, * SecondaryMatMap;
+	void* BaseAddr = NULL;
+	Fear::GFXBitmap* SrcBM;
+	RGBA** targetCanvas;
 
 	/*
 		List will not realloc down unless we call Delete, Release, or Pop.
@@ -69,7 +69,7 @@ namespace Terrain {
 		more than ~200 tiles.
 	*/
 	typedef List< HiddenTexture >::Iterator TileIterator;
-	List< HiddenTexture > tiles( 512 );
+	List< HiddenTexture > tiles(512);
 	u32 uniqueStamp = 0;
 	bool texImageMatch = false, texSubImageMatch = false;
 
@@ -79,10 +79,10 @@ namespace Terrain {
 
 	// redirect for MipBlt
 	CodePatch patchMipBlt = {
-		0x005F692D, 
-		"\xE8\xA6\x55\x00\x00", 
-		"\xe9mipb", 
-		5, 
+		0x005F692D,
+		"\xE8\xA6\x55\x00\x00",
+		"\xe9mipb",
+		5,
 		false
 	};
 
@@ -90,8 +90,8 @@ namespace Terrain {
 	CodePatch patchCreateFileFromGridFile = {
 		0x00605F26,
 		"\x8B\xC8\x8B\x44\x24",
-		"\xe9GFFC", 
-		5, 
+		"\xe9GFFC",
+		5,
 		false
 	};
 
@@ -106,9 +106,9 @@ namespace Terrain {
 
 	CodePatch patchForceTerrainRecache = {
 		0x006037D3,
-		"\x0f\x84\x89\x01\x00\x00", 
-		"\x90\x90\x90\x90\x90\x90", 
-		6, 
+		"\x0f\x84\x89\x01\x00\x00",
+		"\x90\x90\x90\x90\x90\x90",
+		6,
 		false
 	};
 
@@ -142,20 +142,20 @@ namespace Terrain {
 	struct TerrainFile {
 		u32 squareSize;
 		f32 visibleDistance, hazeDistance, screenSize;
-		TerrainBlock *blockMap[3][3];
+		TerrainBlock* blockMap[3][3];
 	};
 
 	struct TerrainRenderState {
 		PAD(0x4064 - (0x0000 + 0x000)); u32 squareSize;
 		PAD(0x4078 - (0x4064 + 0x004)); f32 growFactor;
-		PAD(0x4108 - (0x4078 + 0x004)); Fear::OpenGLSurface *gfxSurface;
+		PAD(0x4108 - (0x4078 + 0x004)); Fear::OpenGLSurface* gfxSurface;
 	};
 
-	#define PTR_TERRAIN_RENDER_STATE 0x00725B2C
+#define PTR_TERRAIN_RENDER_STATE 0x00725B2C
 
-	TerrainRenderState *getTerrainRenderState() {
+	TerrainRenderState* getTerrainRenderState() {
 		__asm {
-			mov eax, ds:[PTR_TERRAIN_RENDER_STATE]
+			mov eax, ds: [PTR_TERRAIN_RENDER_STATE]
 		}
 	}
 
@@ -185,61 +185,61 @@ namespace Terrain {
 			pushad
 			call forceTerrainRefresh
 			popad
-			jmp [fnFlushTextureCache]
+			jmp[fnFlushTextureCache]
 		}
 	}
 
-	void MipBlt(u32 rotate_flag, RGBA *src_start, s32 src_inc, RGBA *dst_start, s32 tile_width, s32 src_adjust, s32 dst_adjust) {
-		switch ( rotate_flag ) {
-			case GridBlock_Material_Plain:
-				break;
+	void MipBlt(u32 rotate_flag, RGBA* src_start, s32 src_inc, RGBA* dst_start, s32 tile_width, s32 src_adjust, s32 dst_adjust) {
+		switch (rotate_flag) {
+		case GridBlock_Material_Plain:
+			break;
 
-			case GridBlock_Material_Rotate:
-				src_start += tile_width*tile_width-tile_width;
-				src_inc = -tile_width;
-				src_adjust = tile_width*tile_width+1;
-				break;
+		case GridBlock_Material_Rotate:
+			src_start += tile_width * tile_width - tile_width;
+			src_inc = -tile_width;
+			src_adjust = tile_width * tile_width + 1;
+			break;
 
-			case GridBlock_Material_FlipX:
-				src_start += tile_width-1;
-				src_inc = -1;
-				src_adjust = 2*tile_width;
-				break;
+		case GridBlock_Material_FlipX:
+			src_start += tile_width - 1;
+			src_inc = -1;
+			src_adjust = 2 * tile_width;
+			break;
 
-			case GridBlock_Material_FlipY:
-				src_start += tile_width*tile_width-tile_width;
-				src_adjust = -2*tile_width;
-				break;
+		case GridBlock_Material_FlipY:
+			src_start += tile_width * tile_width - tile_width;
+			src_adjust = -2 * tile_width;
+			break;
 
-			case GridBlock_Material_FlipX|GridBlock_Material_FlipY:
-				src_start += tile_width*tile_width-1;
-				src_inc = -1;
-				break;
+		case GridBlock_Material_FlipX | GridBlock_Material_FlipY:
+			src_start += tile_width * tile_width - 1;
+			src_inc = -1;
+			break;
 
-			case GridBlock_Material_FlipX|GridBlock_Material_Rotate:
-				src_start += tile_width*tile_width-1;
-				src_inc = -tile_width;
-				src_adjust = tile_width*tile_width-1;
-				break;
+		case GridBlock_Material_FlipX | GridBlock_Material_Rotate:
+			src_start += tile_width * tile_width - 1;
+			src_inc = -tile_width;
+			src_adjust = tile_width * tile_width - 1;
+			break;
 
-			case GridBlock_Material_FlipY|GridBlock_Material_Rotate:
-				src_inc = tile_width;
-				src_adjust = -(tile_width*tile_width-1);
-				break;
+		case GridBlock_Material_FlipY | GridBlock_Material_Rotate:
+			src_inc = tile_width;
+			src_adjust = -(tile_width * tile_width - 1);
+			break;
 
-			case GridBlock_Material_FlipX|GridBlock_Material_FlipY|GridBlock_Material_Rotate:
-				src_start += tile_width-1;
-				src_inc = tile_width;
-				src_adjust = -((tile_width*tile_width)+1);
-				break;
+		case GridBlock_Material_FlipX | GridBlock_Material_FlipY | GridBlock_Material_Rotate:
+			src_start += tile_width - 1;
+			src_inc = tile_width;
+			src_adjust = -((tile_width * tile_width) + 1);
+			break;
 		}
 
 
 		// use the simple version for tiles 2x2 or smaller
-		if ( tile_width <= 2 ) {
-			RGBA *src = ( src_start ), *dst = ( dst_start );
+		if (tile_width <= 2) {
+			RGBA* src = (src_start), * dst = (dst_start);
 
-			for (s32 y = 0; y < tile_width; y++, src += src_adjust, dst += dst_adjust)  {
+			for (s32 y = 0; y < tile_width; y++, src += src_adjust, dst += dst_adjust) {
 				for (s32 x = 0; x < tile_width; x++, src += src_inc, dst++)
 					*dst = *src;
 			}
@@ -254,42 +254,42 @@ namespace Terrain {
 
 		// do 4 texels at once
 		__asm {
-			mov esi, [ src_start ]
-			mov edi, [ dst_start ]
-			mov ebx, [ src_inc ]
-			lea eax, [ ebx * 2 ]
+			mov esi, [src_start]
+			mov edi, [dst_start]
+			mov ebx, [src_inc]
+			lea eax, [ebx * 2]
 			add eax, ebx // src_inc * 3
 
-			mov ecx, [ tile_width ]
-	__height_loop:
-			mov edx, [ tile_width ]
-			shr edx, 2
-			
-			align 16
-	__width_loop:		
-			movd mm0, [ esi + ebx ]		// src + ( src_inc * 1 )
-			movd mm2, [ esi + eax ]		// src + ( src_inc * 3 )
-			movd mm3, [ esi + ebx * 2 ]	// src + ( src_inc * 2 )
-			movd mm1, [ esi ]			// src		
-			psllq mm0, 32
-			psllq mm2, 32
-			por mm0, mm1
-			por mm2, mm3
+			mov ecx, [tile_width]
+			__height_loop:
+			mov edx, [tile_width]
+				shr edx, 2
 
-			movq [ edi ], mm0
-			movq [ edi + 8 ], mm2
-			
-			lea esi, [ esi + ebx * 4 ]
-			add edi, 16
-			dec edx
-			jnz __width_loop
+				align 16
+				__width_loop :
+				movd mm0, [esi + ebx]		// src + ( src_inc * 1 )
+				movd mm2, [esi + eax]		// src + ( src_inc * 3 )
+				movd mm3, [esi + ebx * 2]	// src + ( src_inc * 2 )
+				movd mm1, [esi]			// src		
+				psllq mm0, 32
+				psllq mm2, 32
+				por mm0, mm1
+				por mm2, mm3
 
-			add esi, [ src_adjust ]
-			add edi, [ dst_adjust ]
-			dec ecx
-			jnz __height_loop
+				movq[edi], mm0
+				movq[edi + 8], mm2
 
-			emms
+				lea esi, [esi + ebx * 4]
+				add edi, 16
+				dec edx
+				jnz __width_loop
+
+				add esi, [src_adjust]
+				add edi, [dst_adjust]
+				dec ecx
+				jnz __height_loop
+
+				emms
 		}
 	}
 
@@ -298,32 +298,36 @@ namespace Terrain {
 			return false;
 
 		// sanity check the replacement anchor
-		HiddenTexture *hidden = (HiddenTexture *)SrcBM->hidden;
-		TextureWithMips *terrain = NULL;
+		HiddenTexture* hidden = (HiddenTexture*)SrcBM->hidden;
+		TextureWithMips* terrain = NULL;
 		if (hidden) {
 			if (hidden < &tiles[0] || hidden > &tiles[511]) {
 				hidden = NULL;
-			} else if (hidden >= &tiles[tiles.Count()]) {
+			}
+			else if (hidden >= &tiles[tiles.Count()]) {
 				hidden = NULL;
-			} else if (hidden->stamp != uniqueStamp) {
+			}
+			else if (hidden->stamp != uniqueStamp) {
 				hidden = NULL;
-			} else if (hidden->parent != SrcBM) {
+			}
+			else if (hidden->parent != SrcBM) {
 				hidden = NULL;
 			}
 		}
 
 		if (hidden) {
-			terrain = (hidden->replacement) ? 
+			terrain = (hidden->replacement) ?
 				hidden->replacement : hidden->originalUpsampled;
-		} else {	
+		}
+		else {
 			hidden = tiles.New();
 			hidden->stamp = uniqueStamp;
 			hidden->parent = SrcBM;
 			SrcBM->hidden = hidden;
 
 			// hash the 16x16 mip
-			const String *name = Replacer::FindOriginalName(HashBytes(SrcBM->bitmapMips[3], 16 * 16));
-			TextureWithMips *replacement = Replacer::FindReplacement(name);
+			const String* name = Replacer::FindOriginalName(HashBytes(SrcBM->bitmapMips[3], 16 * 16));
+			TextureWithMips* replacement = Replacer::FindReplacement(name);
 
 			if (replacement) {
 				if ((replacement->mWidth != replacement->mHeight) || (replacement->mWidth < 128) || !ISPOWOF2(replacement->mWidth)) {
@@ -334,69 +338,71 @@ namespace Terrain {
 
 			if (replacement) {
 				terrain = replacement;
-				
+
 				hidden->replacement = replacement;
-				hidden->originalUpsampled = NULL;			
-			} else {
+				hidden->originalUpsampled = NULL;
+			}
+			else {
 				// generate a texture from the default terrain tile
 				terrain = new TextureWithMips();
 				terrain->New(SrcBM->width, SrcBM->height);
-				getTerrainRenderState()->gfxSurface->textureCache->pbmpToRGBA(SrcBM->bitmapData, (RGBA *)terrain->mData, SrcBM->width * SrcBM->height, SrcBM->paletteIdx);
+				getTerrainRenderState()->gfxSurface->textureCache->pbmpToRGBA(SrcBM->bitmapData, (RGBA*)terrain->mData, SrcBM->width * SrcBM->height, SrcBM->paletteIdx);
 
 				hidden->replacement = NULL;
 				hidden->originalUpsampled = terrain;
 			}
 
 			// will only do this once at most for any texture
-			terrain->GenerateMipMaps(); 
-		}
-		
-		switch ( TileWidth ) {
-			case 256: targetCanvas = &canvasMipList[0]; break;
-			case 128: targetCanvas = &canvasMipList[1]; break;
-			case  64: targetCanvas = &canvasMipList[2]; break;
-			case  32: targetCanvas = &canvasMipList[3]; break;
-			case  16: targetCanvas = &canvasMipList[4]; break;
-			case   8: targetCanvas = &canvasMipList[5]; break;
-			case   4: targetCanvas = &canvasMipList[6]; break;
-			case   2: targetCanvas = &canvasMipList[7]; break;
-			case   1: targetCanvas = &canvasMipList[8]; break;
+			terrain->GenerateMipMaps();
 		}
 
-		RGBA *sourceCanvas;	
+		switch (TileWidth) {
+		case 256: targetCanvas = &canvasMipList[0]; break;
+		case 128: targetCanvas = &canvasMipList[1]; break;
+		case  64: targetCanvas = &canvasMipList[2]; break;
+		case  32: targetCanvas = &canvasMipList[3]; break;
+		case  16: targetCanvas = &canvasMipList[4]; break;
+		case   8: targetCanvas = &canvasMipList[5]; break;
+		case   4: targetCanvas = &canvasMipList[6]; break;
+		case   2: targetCanvas = &canvasMipList[7]; break;
+		case   1: targetCanvas = &canvasMipList[8]; break;
+		}
+
+		RGBA* sourceCanvas;
 
 		if (Replacer::prefShowMatchedTextures) {
 			int color;
 
-			switch ( MipWidth ) {
-				case 64: color = 0x20; break;
-				case 32: color = 0x40; break;
-				case 16: color = 0x60; break;
-				case  8: color = 0x80; break;
-				case  4: color = 0xa0; break;
-				case  2: color = 0xc0; break;
-				case  1: color = 0xff; break;
-				default: color = 0x80; break;
+			switch (MipWidth) {
+			case 64: color = 0x20; break;
+			case 32: color = 0x40; break;
+			case 16: color = 0x60; break;
+			case  8: color = 0x80; break;
+			case  4: color = 0xa0; break;
+			case  2: color = 0xc0; break;
+			case  1: color = 0xff; break;
+			default: color = 0x80; break;
 			}
 
-			memset( canvasDefault, color, MipWidth * MipWidth * 4 );		
+			memset(canvasDefault, color, MipWidth * MipWidth * 4);
 			sourceCanvas = canvasDefault;
-		} else {
+		}
+		else {
 			u32 mipLevel = 0;
 			u32 w = (terrain->mWidth >> 1);
-			
+
 			while (w > MipWidth) {
 				w >>= 1;
 				mipLevel++;
 			}
 
-			sourceCanvas = (RGBA *)terrain->mMipMaps[mipLevel]->mData;
+			sourceCanvas = (RGBA*)terrain->mMipMaps[mipLevel]->mData;
 		}
 
 		s32 src_inc = 1;
 		s32 src_adj = 0;
-		RGBA *src_start = sourceCanvas;
-		RGBA *dst_start = (*targetCanvas) + (Yd * TileWidth + Xd);
+		RGBA* src_start = sourceCanvas;
+		RGBA* dst_start = (*targetCanvas) + (Yd * TileWidth + Xd);
 		s32 dst_adj = (TileWidth - MipWidth);
 		s32 dst_width = MipWidth;
 
@@ -406,23 +412,23 @@ namespace Terrain {
 
 	u32 fnOnMipBltResume = 0x005F6935;
 
-	NAKED void OnMipBlt( ) {
+	NAKED void OnMipBlt() {
 		__asm {
 			call OpenGL::IsActive
 			and al, al
 			jz gcMM_software
 
 			// _baseAddr
-			mov ecx, [ ebp + 0xc ]
-			mov [ BaseAddr ], ecx
+			mov ecx, [ebp + 0xc]
+			mov[BaseAddr], ecx
 
 			// _stride
-			mov ecx, [ ebp + 0x10 ]
-			mov [ TileWidth ], ecx
+			mov ecx, [ebp + 0x10]
+			mov[TileWidth], ecx
 
 			// _matMap[mapI].flags & rotateMask
-			mov edx, [ ebp - 0x20 ] // yo + xo
-			add edx, [ ebp - 0x2c ] // mapI
+			mov edx, [ebp - 0x20] // yo + xo
+			add edx, [ebp - 0x2c] // mapI
 			// mov ebx, [ ebp + 0x18 ] // _matMap
 			mov ebx, [ebp + 0x18]
 			sub ebx, [PrimaryMatMap]
@@ -430,52 +436,52 @@ namespace Terrain {
 			jb __found_offset
 			mov ebx, [ebp + 0x18]
 			sub ebx, [SecondaryMatMap]
-		__found_offset:
+			__found_offset:
 			add ebx, [FixedUpMatMap]
-			mov ax, word ptr [ ebx + edx * 2 ]
-			and eax, 7
-			mov [ RotateFlag ], eax
+				mov ax, word ptr[ebx + edx * 2]
+				and eax, 7
+				mov[RotateFlag], eax
 
-			// pSrcBM = (*_matList)[ _matMap[mapI].index ].getTextureMap()
-			movzx ecx, byte ptr [ ebx + edx * 2 + 1 ]
-			mov eax, [ ebp + 0x14 ]
-			mov ebx, [ ebp + 0x14 ]
-			mov eax, [ eax + 0x1c ]
-			mov ebx, [ ebx + 0x8 ]
-			add ecx, ebx
-			mov ebx, ecx
-			lea ecx, [ ebx + ecx * 8 ]
-			lea ecx, [ ebx + ecx * 2 ]
-			shl ecx, 2
-			add eax, ecx
-			mov eax, [ eax ]
-			mov eax, [ eax + 0x14 ]
-			mov [ SrcBM ], eax
-			mov ebx, eax
+				// pSrcBM = (*_matList)[ _matMap[mapI].index ].getTextureMap()
+				movzx ecx, byte ptr[ebx + edx * 2 + 1]
+				mov eax, [ebp + 0x14]
+				mov ebx, [ebp + 0x14]
+				mov eax, [eax + 0x1c]
+				mov ebx, [ebx + 0x8]
+				add ecx, ebx
+				mov ebx, ecx
+				lea ecx, [ebx + ecx * 8]
+				lea ecx, [ebx + ecx * 2]
+				shl ecx, 2
+				add eax, ecx
+				mov eax, [eax]
+				mov eax, [eax + 0x14]
+				mov[SrcBM], eax
+				mov ebx, eax
 
-			// mipWidth
-			mov eax, [ ebx + 0x10 ]
-			mov ecx, [ ebp - 0x04 ] // mipSize
-			sar eax, cl
-			mov [ MipWidth ], eax
+				// mipWidth
+				mov eax, [ebx + 0x10]
+				mov ecx, [ebp - 0x04] // mipSize
+				sar eax, cl
+				mov[MipWidth], eax
 
-			// xd + yd
-			mov eax, [ ebp - 0x1c ]
-			mov [ Yd ], eax
-			mov eax, [ ebp - 0x28 ]
-			mov [ Xd ], eax
+				// xd + yd
+				mov eax, [ebp - 0x1c]
+				mov[Yd], eax
+				mov eax, [ebp - 0x28]
+				mov[Xd], eax
 
-			call MipBlt_Examine
-			and al, al
-			jnz gcMM_end
+				call MipBlt_Examine
+				and al, al
+				jnz gcMM_end
 
-			// fall through to software 
-	gcMM_software:
-			call [ fnMipBlt ]
+				// fall through to software 
+				gcMM_software :
+			call[fnMipBlt]
 
-	gcMM_end:
-			add esp, 0x1c // adjust for the call to mipBlt
-			jmp [fnOnMipBltResume]
+				gcMM_end :
+				add esp, 0x1c // adjust for the call to mipBlt
+				jmp[fnOnMipBltResume]
 		}
 	}
 
@@ -484,24 +490,25 @@ namespace Terrain {
 		__asm {
 			push eax
 			mov eax, [eax]
-			mov [SecondaryMatMap], eax
+			mov[SecondaryMatMap], eax
 			mov eax, [esp + 0xc]
 			mov eax, [eax]
-			mov [PrimaryMatMap], eax
+			mov[PrimaryMatMap], eax
 			mov eax, [esp + 0x8]
 			pop ecx
-			jmp [fnOnCreateFileFromGridFileResume]
+			jmp[fnOnCreateFileFromGridFileResume]
 		}
 	}
 
-	void SubdivideTest_Examine(u8 *subdivideFlag, u8 *material, f32 distanceScale, f32 squareDistance, u32 nshift) {
+	void SubdivideTest_Examine(u8* subdivideFlag, u8* material, f32 distanceScale, f32 squareDistance, u32 nshift) {
 		*subdivideFlag = 0;
 
-		TerrainRenderState *trs = getTerrainRenderState();
+		TerrainRenderState* trs = getTerrainRenderState();
 		trs->growFactor = 0;
 		if ((squareDistance < 1) || (*material & GridSquare_Pinned)) {
 			*subdivideFlag = 1;
-		} else {
+		}
+		else {
 			f32 squareSize = (f32)(trs->squareSize << nshift);
 			f32 detailDistance = (distanceScale * squareSize) - squareSize;
 			if (squareDistance < detailDistance) {
@@ -518,18 +525,18 @@ namespace Terrain {
 		__asm {
 			pushad
 			xor ecx, ecx
-			mov cx, word ptr [ebx]
+			mov cx, word ptr[ebx]
 			push ecx // nshift
-			push dword ptr [ebp - 0x14] // f32:squareDistance
-			push dword ptr [ebp - 0x1c] // f32:distanceScale
+			push dword ptr[ebp - 0x14] // f32:squareDistance
+			push dword ptr[ebp - 0x1c] // f32:distanceScale
 			lea eax, [esi + 0x6]
 			push eax // material
 			lea eax, [ebp - 0x59] // bool:subdivideSquare
 			push eax // subdivide flag
 			call SubdivideTest_Examine
-			add esp, 4*5
+			add esp, 4 * 5
 			popad
-			jmp [fnResumeProcessCurrentBlock]
+			jmp[fnResumeProcessCurrentBlock]
 		}
 	}
 
@@ -538,55 +545,55 @@ namespace Terrain {
 		__asm {
 			cmp eax, 256
 			jb __use_secondary
-			cmp eax, 256+256
+			cmp eax, 256 + 256
 			jae __use_secondary
 			cmp edx, 256
 			jb __use_secondary
-			cmp edx, 256+256
+			cmp edx, 256 + 256
 			jae __use_secondary
 
 			mov ebx, [PrimaryMatMap]
 			jmp __continue
-		__use_secondary:
+			__use_secondary :
 			mov ebx, [SecondaryMatMap]
-		__continue:
+				__continue :
 
-			and edx, 0xff
-			and eax, 0xff
-			add eax, eax
-			mov esi, [ecx + 0x4060]
-			shl edx, 8
-			xor ecx, ecx
-			jmp [fnResumeRenderLevelZeroLoop]
+				and edx, 0xff
+				and eax, 0xff
+				add eax, eax
+				mov esi, [ecx + 0x4060]
+				shl edx, 8
+				xor ecx, ecx
+				jmp[fnResumeRenderLevelZeroLoop]
 		}
 	}
 
 	u32 fnResumeOnTerrainRenderLevelNonZeroLoop = 0x0060382F;
 	NAKED void OnTerrainRenderLevelNonZeroLoop() {
 		__asm {
-			movzx ebx, word ptr [ecx + 0x8]
+			movzx ebx, word ptr[ecx + 0x8]
 			cmp ebx, 256
 			jl __use_secondary
-			cmp ebx, 256+256
+			cmp ebx, 256 + 256
 			jae __use_secondary
-			movzx ebx, word ptr [ecx + 0xa]
+			movzx ebx, word ptr[ecx + 0xa]
 			cmp ebx, 256
 			jl __use_secondary
-			cmp ebx, 256+256
+			cmp ebx, 256 + 256
 			jae __use_secondary
 			mov ebx, [PrimaryMatMap]
 			jmp __continue
-		__use_secondary:
+			__use_secondary :
 			mov ebx, [SecondaryMatMap]
-		__continue:
-			mov [FixedUpMatMap], ebx
+				__continue :
+				mov[FixedUpMatMap], ebx
 
-			and edx, 0xff
-			jmp [fnResumeOnTerrainRenderLevelNonZeroLoop]
+				and edx, 0xff
+				jmp[fnResumeOnTerrainRenderLevelNonZeroLoop]
 		}
 	}
 
-	RGBA **CheckForTerrainTile() {
+	RGBA** CheckForTerrainTile() {
 		if (!prefMemstarTerrain || (!texImageMatch && !texSubImageMatch))
 			return NULL;
 
@@ -595,10 +602,10 @@ namespace Terrain {
 
 		// generate mips from the generated tile
 		u32 width = TileWidth;
-		RGBA **src = targetCanvas, **dst = src + 1;
+		RGBA** src = targetCanvas, ** dst = src + 1;
 		while (width > 1) {
 			u32 halfWidth = (width >> 1);
-			Texture::HalveTexture(*src++, width, width, *dst++, halfWidth, halfWidth);	
+			Texture::HalveTexture(*src++, width, width, *dst++, halfWidth, halfWidth);
 			width = halfWidth;
 		}
 
@@ -611,12 +618,12 @@ namespace Terrain {
 	}
 
 	// check for the original creation of a grid tile
-	bool TexImageCheck(void *bmp) {
+	bool TexImageCheck(void* bmp) {
 		texImageMatch = (BaseAddr == bmp);
 		return texImageMatch;
 	}
 
-	bool TexSubImageCheck(void *bmp) {
+	bool TexSubImageCheck(void* bmp) {
 		texSubImageMatch = (BaseAddr == bmp);
 		return texSubImageMatch;
 	}
@@ -650,8 +657,8 @@ namespace Terrain {
 		patchLeaveTerrainRenderLevelNonZero.DoctorRelative((u32)OnLeaveTerrainRenderLevelNonZero, 1).Apply(true);
 		patchLeaveTerrainRenderLevelNonZeroLoop.DoctorRelative((u32)OnTerrainRenderLevelNonZeroLoop, 1).Apply(true);
 		patchTerrainRenderLevelZeroLoop.DoctorRelative((u32)OnRenderLevelZeroLoop, 1).Apply(true);
-		fnFlushTextureCache = Patch::ReplaceHook((void *)OPENGL_FLUSH_TEXTURE_CACHE_VFT, OnFlushTextureCache);
-		
+		fnFlushTextureCache = Patch::ReplaceHook((void*)OPENGL_FLUSH_TEXTURE_CACHE_VFT, OnFlushTextureCache);
+
 
 		Reset();
 	}

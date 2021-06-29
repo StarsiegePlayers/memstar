@@ -3,9 +3,9 @@
 
 
 namespace Terrain {
-	RGBA **CheckForTerrainTile();
-	bool TexImageCheck(void *bmp);
-	bool TexSubImageCheck(void *bmp);
+	RGBA** CheckForTerrainTile();
+	bool TexImageCheck(void* bmp);
+	bool TexSubImageCheck(void* bmp);
 }; // namespace Terrain
 
 

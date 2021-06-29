@@ -4,7 +4,7 @@
 #include "Font.h"
 
 namespace FontManager {
-	Font *LoadFont( const char *name, int pixel_height, Font::Rendering mode, int glow_radius );
+	Font* LoadFont(const char* name, int pixel_height, Font::Rendering mode, int glow_radius);
 };
 
 #endif // __FONTMANAGER_H__

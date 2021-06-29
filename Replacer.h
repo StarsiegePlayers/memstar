@@ -4,21 +4,21 @@
 #include "Texture.h"
 
 struct Original {
-	bool operator< ( const Original &b ) const {
-		return ( mCrc < b.mCrc );
+	bool operator< (const Original& b) const {
+		return (mCrc < b.mCrc);
 	}
 
 	unsigned int mCrc;
-	char *mName;
+	char* mName;
 };
 
 namespace Replacer {
-	const String *FindOriginalName( unsigned int texture_crc );
-	TextureWithMips *FindReplacement( const String *name );
-	void Forget( );
-	TextureWithMips *LastMatchedTexture( );
-	bool LastScanWasReplaceable( );
-	void Open( );
+	const String* FindOriginalName(unsigned int texture_crc);
+	TextureWithMips* FindReplacement(const String* name);
+	void Forget();
+	TextureWithMips* LastMatchedTexture();
+	bool LastScanWasReplaceable();
+	void Open();
 };
 
 #endif // __REPLACER_H__

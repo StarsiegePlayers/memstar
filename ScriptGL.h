@@ -5,11 +5,11 @@
 #include "Font.h"
 
 namespace ScriptGL {
-	Texture *FindTexture( const char *name );
-	void OnPlayGUIPreDraw( );
-	void OnPlayGUIPostDraw( );
+	Texture* FindTexture(const char* name);
+	void OnPlayGUIPreDraw();
+	void OnPlayGUIPostDraw();
 
-	extern Font *mFont;
+	extern Font* mFont;
 	extern int mBeginCount;
 };
 
