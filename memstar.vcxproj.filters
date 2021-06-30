@@ -19,6 +19,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\Lib">
+      <UniqueIdentifier>{33df210a-307a-42e2-aea1-4ebc7857e5ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Console.cpp">
@@ -129,80 +132,14 @@
     <ClCompile Include="zlib\zutil.c">
       <Filter>Source Files\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="BayWatch.cpp">
+    <ClCompile Include="VersionSnoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="License.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Console.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fear.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystem.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FontManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLOpcodes.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Memstar.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGL.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Originals.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Replacer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptGL.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\BaseTypes.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Callback.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Comparisons.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Hash.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\HashTable.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\List.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Patch.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Sort.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\StringConversions.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\Strings.h">
-      <Filter>Source Files\Lib</Filter>
-    </ClInclude>
     <ClInclude Include="zlib\crc32.h">
       <Filter>Source Files\zlib</Filter>
     </ClInclude>
@@ -251,5 +188,91 @@
     <ClInclude Include="zlib\zutil.h">
       <Filter>Source Files\zlib</Filter>
     </ClInclude>
+    <ClInclude Include="VersionSnoop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiPointer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\BaseTypes.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Callback.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Comparisons.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\HashTable.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Hash.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\List.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Patch.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Sort.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\StringConversions.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\Strings.h">
+      <Filter>Header Files\Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fear.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLOpcodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Memstar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Originals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Replacer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

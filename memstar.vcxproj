@@ -66,6 +66,10 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>NDEBUG</UndefinePreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -84,9 +88,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG</PreprocessorDefinitions>
+    </ResourceCompile>
+    <ResourceCompile>
+      <UndefinePreprocessorDefinitions>_DEBUG</UndefinePreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BayWatch.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="DLLMain.cpp" />
     <ClCompile Include="ExeFixes.cpp" />
@@ -98,6 +107,7 @@
     <ClCompile Include="Lib\Hash.cpp" />
     <ClCompile Include="Lib\StringConversions.cpp" />
     <ClCompile Include="Lib\Strings.cpp" />
+    <ClCompile Include="License.cpp" />
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="MS_Stub.cpp" />
     <ClCompile Include="OpenGL.cpp" />
@@ -107,6 +117,7 @@
     <ClCompile Include="StringFunctions.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VersionSnoop.cpp" />
     <ClCompile Include="VistaFix.cpp" />
     <ClCompile Include="zlib\adler32.c" />
     <ClCompile Include="zlib\compress.c" />
@@ -142,12 +153,16 @@
     <ClInclude Include="Lib\StringConversions.h" />
     <ClInclude Include="Lib\Strings.h" />
     <ClInclude Include="Memstar.h" />
+    <ClInclude Include="MultiPointer.h" />
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="Originals.h" />
     <ClInclude Include="Replacer.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptGL.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="version.h" />
+    <ClInclude Include="VersionSnoop.h" />
     <ClInclude Include="zlib\crc32.h" />
     <ClInclude Include="zlib\crypt.h" />
     <ClInclude Include="zlib\deflate.h" />
@@ -164,6 +179,9 @@
     <ClInclude Include="zlib\zip.h" />
     <ClInclude Include="zlib\zlib.h" />
     <ClInclude Include="zlib\zutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

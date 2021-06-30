@@ -8,9 +8,12 @@
 #define INLINE __forceinline
 
 #include <windows.h>
+#include <Psapi.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include "BaseTypes.h"
+#include "version.h"
+
 
 
 #endif // __MEMSTAR_H__
