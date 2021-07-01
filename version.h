@@ -9,6 +9,7 @@
 */
 #ifndef VER_PRERELEASE_BUILD
 #define VER_PRERELEASE_BUILD        0
+#define VER_BUILDID                 0
 #endif
 
 #ifndef VER_PATCHED_BUILD
@@ -25,7 +26,7 @@
 
 //#define VER_SPECIAL_STR             ""
 //#define VER_PRIVATE_STR             ""
-#define VER_COMMENT_STR             "StarsiegePlayers Build on 2021-06-30"
+#define VER_COMMENT_STR             "StarsiegePlayers Build on 2021-07-01"
 
 // Required Information
 #define VER_FILEVERSION             1,1,0,0
@@ -58,7 +59,11 @@
 #if VER_PRERELEASE_BUILD != 0
 #undef VER_PRERELEASE_BUILD
 #define VER_PRERELEASE_BUILD VS_FF_PRERELEASE
+#ifdef VER_BUILDID
+#define VER_PRERELEASEBUILD_STR , Pre-Release VER_BUILDID
+#else
 #define VER_PRERELEASEBUILD_STR , Pre-Release
+#endif
 
 #ifdef VER_DEBUGBUILD_STR
 #undef VER_DEBUGBUILD_STR
