@@ -6,17 +6,26 @@
 namespace Patch {
 
 INLINE u32 Protect(void *base, u32 size, u32 protection) {
+	if ((int)base <= 0) {
+		return 0;
+	}
 	DWORD old_protect;
 	VirtualProtect(base, size, protection, &old_protect);
 	return (u32)old_protect;
 }
 
 INLINE void Write(void *base, void *bytes, u32 size) {
+	if ((int)base <= 0) {
+		return;
+	}
 	Protect(base, size, PAGE_EXECUTE_READWRITE);
 	memcpy(base, bytes, size);
 }
 
 INLINE u32 ReplaceHook(void *address, void *new_hook) {
+	if ((int)address <= 0) {
+		return 0;
+	}
 	u32 tmp = *(u32 *)address;
 	*(u32 *)address = (u32)new_hook;
 	return tmp;
@@ -27,6 +36,9 @@ INLINE u32 ReplaceHook(void *address, void *new_hook) {
 
 struct CodePatch {
 	void Apply(bool state) {
+		if ((int)location <= 0) {
+			return;
+		}
 		Patch::Write((void *)location, (state) ? patched_bytes : unpatched_bytes, size);
 	}
 

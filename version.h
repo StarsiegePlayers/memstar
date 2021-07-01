@@ -28,15 +28,15 @@
 #define VER_COMMENT_STR             "StarsiegePlayers Build on 2021-06-30"
 
 // Required Information
-#define VER_FILEVERSION             1,0,0,1
-#define VER_FILEVERSIONSTR          1.0.0.1 Neo
+#define VER_FILEVERSION             1,1,0,0
+#define VER_FILEVERSIONSTR          1.1.0.0
 
-#define VER_PRODUCTVERSION          1,0,0,1
-#define VER_PRODUCTVERSIONSTR       1.0.0.1 Neo
+#define VER_PRODUCTVERSION          1,1,0,0
+#define VER_PRODUCTVERSIONSTR       1.1.0.0
 
 #define VER_COMPANYNAME_STR         "Starsiege Players Community"
 #define VER_PRODUCTNAME_STR         "mem.dll replacement for Starsiege"
-#define VER_FILEDESCRIPTION_STR     "Memstar's replacment mem.dll expands and fixes various functionality in Starsiege"
+#define VER_FILEDESCRIPTION_STR     "Neo's replacment memstar dll"
 #define VER_INTERNALNAME_STR        "memstar.dll"
 #define VER_LEGALCOPYRIGHT_STR      "Copyright (C) 2021 Starsiege Players Community, et al."
 #define VER_ORIGINALFILENAME_STR    "mem.dll"
@@ -59,6 +59,11 @@
 #undef VER_PRERELEASE_BUILD
 #define VER_PRERELEASE_BUILD VS_FF_PRERELEASE
 #define VER_PRERELEASEBUILD_STR , Pre-Release
+
+#ifdef VER_DEBUGBUILD_STR
+#undef VER_DEBUGBUILD_STR
+#define VER_DEBUGBUILD_STR
+#endif
 #else
 #define VER_PRERELEASEBUILD_STR
 #endif

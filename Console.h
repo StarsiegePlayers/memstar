@@ -4,6 +4,7 @@
 #include "Memstar.h"
 #include "StringConversions.h"
 #include "List.h"
+#include "MultiPointer.h"
 
 enum VariableType {
 	VAR_bool = 1,
@@ -80,7 +81,7 @@ namespace Console {
 
 #define BuiltInVariable( __scripted__, __type__, __name__, __default__ )                 \
 __type__ __name__ = __default__;                                                         \
-static const Console::VariableConstructor vc##__name__( __scripted__, &__name__, VAR_##__type__ );
+static const Console::VariableConstructor vc##__name__( __scripted__, &__name__, VAR_##__type__ )
 
 #define BuiltInFunction( __scripted__, __name__ )   \
 const char * __stdcall __name__##bin(s32 argc, const char *self, const char *argv[]); \

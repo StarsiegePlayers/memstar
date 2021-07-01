@@ -4,15 +4,19 @@
 #include "OpenGL.h"
 #include "Console.h"
 
+namespace VersionSnoop {
+	extern DWORD* versionPtr;
+};
+
 namespace GUI {
 
-#define SIMCANVASSET_ONRENDER_VFT 0x00714AE0
-#define SIMCANVAS_RENDER 0x005CD2F4
-#define SIMCANVAS_RENDERGUI_CALL 0x005D9658
+MultiPointer(ptr_SIMCANVASSET_ONRENDER_VFT, 0, 0, 0x00704670, 0x00714AE0);
+MultiPointer(ptr_SIMCANVAS_RENDER, 0, 0, 0x005c9a50, 0x005CD2F4);
+MultiPointer(ptr_SIMCANVAS_RENDERGUI_CALL, 0, 0, 0x005d5db4, 0x005D9658);
 
-	CodePatch cpDrawGUI = { SIMCANVAS_RENDERGUI_CALL, "\xe8\x97\x3c\xff\xff", "\xe8\xfb\xe2\x0b\x00", 5, false };
+	CodePatch cpDrawGUI = { ptr_SIMCANVAS_RENDERGUI_CALL, "\xe8\x97\x3c\xff\xff", "\xe8rgui", 5, false };
 
-	u32 fnOnRender, fnRenderGui = SIMCANVAS_RENDER;
+	u32 fnOnRender, fnRenderGui = ptr_SIMCANVAS_RENDER;
 	Fear::GraphicsAdapter* gfxAdapter;
 
 	void GatherInformation() {
@@ -66,11 +70,16 @@ namespace GUI {
 
 	struct Init {
 		Init() {
-			cpDrawGUI.DoctorRelative((u32)OnPlayGUI, 1);
-			cpDrawGUI.Apply(true);
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() != VERSION::v001004) {
+				return;
+			}
 
-			fnOnRender = Patch::ReplaceHook((void*)SIMCANVASSET_ONRENDER_VFT, OnRender);
+			cpDrawGUI.DoctorRelative((u32)OnPlayGUI, 1).Apply(true);
+			fnOnRender = Patch::ReplaceHook((void*)ptr_SIMCANVASSET_ONRENDER_VFT, OnRender);
 		}
-	} init;
+	} Init;
 
 }; // namespace GUI

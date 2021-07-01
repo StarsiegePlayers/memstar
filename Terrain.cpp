@@ -9,8 +9,6 @@
 #include "Callback.h"
 #include <stdio.h>
 
-#define OPENGL_FLUSH_TEXTURE_CACHE_VFT 0x0072A738
-
 namespace Replacer {
 	extern bool prefShowMatchedTextures;
 }
@@ -23,15 +21,17 @@ namespace Terrain {
 
 #define GridSquare_Pinned         ( 4 )
 
+	MultiPointer(ptr_OPENGL_FLUSH_TEXTURE_CACHE_VFT, 0, 0, 0, 0x0072A738);
+
 	struct HiddenTexture {
 		TextureWithMips* replacement, * originalUpsampled;
 		u32 stamp;
 		Fear::GFXBitmap* parent;
 	};
 
-	BuiltInVariable("pref::memstarTerrain", bool, prefMemstarTerrain, true)
+	BuiltInVariable("pref::memstarTerrain", bool, prefMemstarTerrain, true);
 
-		RGBA canvas_1x1[1 * 1];
+	RGBA canvas_1x1[1 * 1];
 	RGBA canvas_2x2[2 * 2];
 	RGBA canvas_4x4[4 * 4];
 	RGBA canvas_8x8[8 * 8];
@@ -74,12 +74,14 @@ namespace Terrain {
 	bool texImageMatch = false, texSubImageMatch = false;
 
 	// terrain fixes
-	u32 fnSetBool = 0x005E6B80;
-	u32 fnMipBlt = 0x005FBED8;
+	MultiPointer(fnSetBool, 0, 0, 0, 0x005E6B80);
+	MultiPointer(fnMipBlt, 0, 0, 0, 0x005FBED8);
 
+
+	MultiPointer(ptr_patchMipBlt, 0, 0, 0, 0x005F692D);
 	// redirect for MipBlt
 	CodePatch patchMipBlt = {
-		0x005F692D,
+		ptr_patchMipBlt,
 		"\xE8\xA6\x55\x00\x00",
 		"\xe9mipb",
 		5,
@@ -87,8 +89,9 @@ namespace Terrain {
 	};
 
 	// check to bump block offset up to the next 256x256 grid
+	MultiPointer(ptr_patchCreateFileFromGridFile, 0, 0, 0, 0x00605F26);
 	CodePatch patchCreateFileFromGridFile = {
-		0x00605F26,
+		ptr_patchCreateFileFromGridFile,
 		"\x8B\xC8\x8B\x44\x24",
 		"\xe9GFFC",
 		5,
@@ -96,40 +99,45 @@ namespace Terrain {
 	};
 
 	// fix subdivide test
+	MultiPointer(ptr_patchSubdivideTest, 0, 0, 0, 0x00601A9B);
 	CodePatch patchSubdivideTest = {
-		0x00601A9B,
+		ptr_patchSubdivideTest,
 		"\x66\x8B\x0B\x8B\x15",
 		"\xe9subd",
 		5,
 		false
 	};
 
+	MultiPointer(ptr_patchForceTerrainRecache, 0, 0, 0, 0x006037D3);
 	CodePatch patchForceTerrainRecache = {
-		0x006037D3,
+		ptr_patchForceTerrainRecache,
 		"\x0f\x84\x89\x01\x00\x00",
 		"\x90\x90\x90\x90\x90\x90",
 		6,
 		false
 	};
 
+	MultiPointer(ptr_patchLeaveTerrainRenderLevelNonZero, 0, 0, 0, 0x006039BF);
 	CodePatch patchLeaveTerrainRenderLevelNonZero = {
-		0x006039BF,
+		ptr_patchLeaveTerrainRenderLevelNonZero,
 		"\x83\xC4\x34\x5F\x5E",
 		"\xE9LTRN",
 		5,
 		false
 	};
 
+	MultiPointer(ptr_patchLeaveTerrainRenderLevelNonZeroLoop, 0, 0, 0, 0x00603829);
 	CodePatch patchLeaveTerrainRenderLevelNonZeroLoop = {
-		0x00603829,
+		ptr_patchLeaveTerrainRenderLevelNonZeroLoop,
 		"\x81\xE2\xFF\x00\x00",
 		"\xE9LTR2",
 		5,
 		false
 	};
 
+	MultiPointer(ptr_patchTerrainRenderLevelZeroLoop, 0, 0, 0, 0x006032E2);
 	CodePatch patchTerrainRenderLevelZeroLoop = {
-		0x006032E2,
+		ptr_patchTerrainRenderLevelZeroLoop,
 		"\x81\xE2\xFF\x00\x00",
 		"\xE9RLZL",
 		5,
@@ -151,11 +159,13 @@ namespace Terrain {
 		PAD(0x4108 - (0x4078 + 0x004)); Fear::OpenGLSurface* gfxSurface;
 	};
 
-#define PTR_TERRAIN_RENDER_STATE 0x00725B2C
-
+	MultiPointer(ptr_TERRAIN_RENDER_STATE, 0, 0, 0, 0x00725B2C);
 	TerrainRenderState* getTerrainRenderState() {
 		__asm {
-			mov eax, ds: [PTR_TERRAIN_RENDER_STATE]
+			push esi
+			mov esi, ptr_TERRAIN_RENDER_STATE
+			mov eax, ds: [esi]
+			pop esi
 		}
 	}
 
@@ -410,8 +420,7 @@ namespace Terrain {
 		return true;
 	}
 
-	u32 fnOnMipBltResume = 0x005F6935;
-
+	MultiPointer(fnOnMipBltResume, 0, 0, 0, 0x005F6935);
 	NAKED void OnMipBlt() {
 		__asm {
 			call OpenGL::IsActive
@@ -485,7 +494,7 @@ namespace Terrain {
 		}
 	}
 
-	u32 fnOnCreateFileFromGridFileResume = 0x00605F2C;
+	MultiPointer(fnOnCreateFileFromGridFileResume, 0, 0, 0, 0x00605F2C);
 	NAKED void OnCreateFileFromGridFile() {
 		__asm {
 			push eax
@@ -520,7 +529,7 @@ namespace Terrain {
 		}
 	}
 
-	u32 fnResumeProcessCurrentBlock = 0x00601B8E;
+	MultiPointer(fnResumeProcessCurrentBlock, 0, 0, 0, 0x00601B8E);
 	NAKED void OnSubdivideTest() {
 		__asm {
 			pushad
@@ -540,7 +549,7 @@ namespace Terrain {
 		}
 	}
 
-	u32 fnResumeRenderLevelZeroLoop = 0x006032FC;
+	MultiPointer(fnResumeRenderLevelZeroLoop, 0, 0, 0, 0x006032FC);
 	NAKED void OnRenderLevelZeroLoop() {
 		__asm {
 			cmp eax, 256
@@ -568,7 +577,7 @@ namespace Terrain {
 		}
 	}
 
-	u32 fnResumeOnTerrainRenderLevelNonZeroLoop = 0x0060382F;
+	MultiPointer(fnResumeOnTerrainRenderLevelNonZeroLoop, 0, 0, 0, 0x0060382F);
 	NAKED void OnTerrainRenderLevelNonZeroLoop() {
 		__asm {
 			movzx ebx, word ptr[ecx + 0x8]
@@ -657,8 +666,7 @@ namespace Terrain {
 		patchLeaveTerrainRenderLevelNonZero.DoctorRelative((u32)OnLeaveTerrainRenderLevelNonZero, 1).Apply(true);
 		patchLeaveTerrainRenderLevelNonZeroLoop.DoctorRelative((u32)OnTerrainRenderLevelNonZeroLoop, 1).Apply(true);
 		patchTerrainRenderLevelZeroLoop.DoctorRelative((u32)OnRenderLevelZeroLoop, 1).Apply(true);
-		fnFlushTextureCache = Patch::ReplaceHook((void*)OPENGL_FLUSH_TEXTURE_CACHE_VFT, OnFlushTextureCache);
-
+		fnFlushTextureCache = Patch::ReplaceHook((void*)ptr_OPENGL_FLUSH_TEXTURE_CACHE_VFT, OnFlushTextureCache);
 
 		Reset();
 	}

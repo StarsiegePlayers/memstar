@@ -1,7 +1,10 @@
 #include "Memstar.h"
+#include "Patch.h"
+#include "MultiPointer.h"
 
 namespace VistaFix {
 
+	MultiPointer(ptrWindowsHookExA, 0x0084ca28, 0x0084ea30, 0x00864a48, 0x00885a48);
 	NAKED void SetWindowsHookExAStub() {
 		__asm {
 			call ds : [GetCurrentThreadId]
@@ -16,15 +19,14 @@ namespace VistaFix {
 
 	struct Init {
 		Init() {
-			u32 old_protect, hook_proc;
-			for (hook_proc = 0x84ca28; hook_proc <= 0x885A48; hook_proc += 4)
-				if (*(u32*)hook_proc == (u32)&SetWindowsHookExA)
-					break;
-			if (*(u32*)hook_proc == (u32)&SetWindowsHookExA) {
-				VirtualProtect((LPVOID)hook_proc, 256, PAGE_READWRITE, (PDWORD)&old_protect);
-				*(u32*)hook_proc = (u32)&SetWindowsHookExAStub;
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
 			}
+			Patch::Protect((u32*)ptrWindowsHookExA, 256, PAGE_READWRITE);
+			Patch::ReplaceHook((u32*)ptrWindowsHookExA, &SetWindowsHookExAStub);
 		}
 	} VistaFixInit;
+
+
 
 }; // namespace VistaFix

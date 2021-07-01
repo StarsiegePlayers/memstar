@@ -1,27 +1,33 @@
 #include "Console.h"
 #include "Patch.h"
+#include "VersionSnoop.h"
+#include "MultiPointer.h"
 
 namespace ExeFixes {
+
+	MultiPointer(ptrWideScreen, 0, 0, 0x0063c807, 0x0064B747);
 	CodePatch widescreen = {
-		0x0064B747,
+		ptrWideScreen,
 		"",
 		"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90",
 		58,
 		false
 	};
 
+	MultiPointer(ptrDoSFix, 0, 0, 0x0067c7e6, 0x0068C6B2);
 	//                                                 |.  8DBD 38FFFFFF     LEA EDI,DWORD PTR SS:[EBP-C8]
 	CodePatch dosfix = {
-		0x0068C6B2,
+		ptrDoSFix,
 		"",
 		"\xE9OSFX",
 		5,
 		false
 	};
 
-	static const u32 fnBitStreamReadInt = 0x0056D4A0, fnReadPacketAcksResume = 0x0068C6E9;
-	static const char* crashAttempt = "DoSFiX: Crash Attempt by %s";
 
+	MultiPointer(fnBitStreamReadInt, 0, 0, 0, 0x0056D4A0);
+	MultiPointer(fnReadPacketAcksResume, 0, 0, 0, 0x0068C6E9);
+	static const char* crashAttempt = "DoSFiX: Crash Attempt by %s";
 	NAKED void DosFix() {
 		__asm {
 			push ebx
@@ -61,6 +67,13 @@ namespace ExeFixes {
 
 	struct Init {
 		Init() {
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() != VERSION::v001004) {
+				return;
+			}
+
 			widescreen.Apply(true);
 			dosfix.DoctorRelative((u32)DosFix, 1).Apply(true);
 		}

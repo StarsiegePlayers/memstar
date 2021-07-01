@@ -2,6 +2,7 @@
 #include "Patch.h"
 #include "Fear.h"
 #include "Callback.h"
+#include "MultiPointer.h"
 
 namespace Loader {
 
@@ -18,18 +19,10 @@ namespace Loader {
 
 	}; // namespace Test
 
-
-	void Startup() {
-		Callback::trigger(Callback::OnStarted, true);
-	}
-
-#define FEARINSTANCE_INIT_VFT 0x006D802C
-#define FEARINSTANCE_UEHANDLER 0x0087F16C
-#define SOMETHING_ENDFRAME_VFT 0x006D7FA0
-
 	u32 fnFearInstanceInit, fnUEHandler, fnEndFrame;
 	u32 Crashed = 0;
 
+	MultiPointer(ptrFearInstanceUEHandler, 0, 0, 0x0085e084, 0x0087F16C);
 	NAKED void UEHandler() {
 		__asm {
 			mov dword ptr[Crashed], 1
@@ -37,20 +30,25 @@ namespace Loader {
 		}
 	}
 
+	MultiPointer(ptrFearInstanceInitVFT, 0, 0, 0x006c8000, 0x006D802C);
+	void Startup() {
+		Callback::trigger(Callback::OnStarted, true);
+	}
 	NAKED void StartupStub() {
 		__asm {
 			push dword ptr[fnFearInstanceInit]
-			pop dword ptr ds : [FEARINSTANCE_INIT_VFT]
+			mov esi, ptrFearInstanceInitVFT
+			pop dword ptr ds:[esi]
 			call[fnFearInstanceInit]
 			call Startup
 			retn
 		}
 	}
 
+	MultiPointer(ptrEndFrameVFT, 0, 0, 0x006c7f74, 0x006D7FA0);
 	void OnEndFrameManaged() {
 		Callback::trigger(Callback::OnEndframe, true);
 	}
-
 	NAKED void OnEndFrame() {
 		__asm {
 			push eax
@@ -62,11 +60,17 @@ namespace Loader {
 
 	struct Init {
 		Init() {
-			fnUEHandler = Patch::ReplaceHook((void*)FEARINSTANCE_UEHANDLER, &UEHandler);
-			fnFearInstanceInit = Patch::ReplaceHook((void*)FEARINSTANCE_INIT_VFT, &StartupStub);
-			fnEndFrame = Patch::ReplaceHook((void*)SOMETHING_ENDFRAME_VFT, &OnEndFrame);
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() < VERSION::v001003) {
+				return;
+			}
+			fnUEHandler = Patch::ReplaceHook((void*)ptrFearInstanceUEHandler, &UEHandler);
+			fnFearInstanceInit = Patch::ReplaceHook((void*)ptrFearInstanceInitVFT, &StartupStub);
+			fnEndFrame = Patch::ReplaceHook((void*)ptrEndFrameVFT, &OnEndFrame);
 		}
-	} init;
+	} Init;
 
 
 

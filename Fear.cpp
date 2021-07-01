@@ -1,14 +1,16 @@
 #include "Fear.h"
 #include "Strings.h"
+#include "MultiPointer.h"
 
 namespace Fear {
-#define SIM_PTR 0x0071CF5C
-#define SIMSKY_VFT 0x0071265C
-#define SIMSET_VFT 0x0071492C
-#define SIMCANVAS_PTR 0x0077FAE8
+
+	MultiPointer(ptr_SIM_PTR, 0, 0, 0x0070caec, 0x0071CF5C);
+	MultiPointer(ptr_SIMSKY_VFT, 0, 0, 0x007021ec, 0x0071265C);
+	MultiPointer(ptr_SIMSET_VFT, 0, 0, 0x0070452c, 0x0071492C);
+	MultiPointer(ptr_SIMCANVAS_PTR, 0, 0, 0x0076f4d0, 0x0077FAE8);
 
 	Sim* Sim::Client() {
-		return *(Sim**)(SIM_PTR);
+		return *(Sim**)(ptr_SIM_PTR);
 	}
 
 	template<class T>
@@ -28,9 +30,9 @@ namespace Fear {
 
 	Sky* findSky() {
 		SimSet* render_set = Sim::Client()->findObject<SimSet>(13);
-		if (render_set->vft == SIMSET_VFT) {
+		if (render_set->vft == ptr_SIMSET_VFT) {
 			for (SimSet::Iterator iter = render_set->Begin(); iter != render_set->End(); ++iter)
-				if ((*iter)->vft == SIMSKY_VFT)
+				if ((*iter)->vft == ptr_SIMSKY_VFT)
 					return (Sky*)*iter;
 		}
 		return NULL;
@@ -58,7 +60,8 @@ namespace Fear {
 	bool getScreenDimensions(Vector2i* dim) {
 		__asm {
 			// SimGui::Canvas
-			mov eax, ds: [SIMCANVAS_PTR]
+			mov esi, ptr_SIMCANVAS_PTR
+			mov eax, ds:[esi]
 			and eax, eax
 			jz done
 

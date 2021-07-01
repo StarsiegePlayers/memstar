@@ -21,7 +21,8 @@ namespace Licence {
 #endif
 		Console::echo("------------------");
 		Console::echo("%s", VER_LEGALCOPYRIGHT_STR);
-		Console::echo("Initial versions written and published by memstar and floodyberry.");
+		Console::echo("This extension would not be possible without everyone that blazed the trail before me");
+		Console::echo("the initial versions were written and published by NoFix and floodyberry.");
 
 		return "true";
 	}

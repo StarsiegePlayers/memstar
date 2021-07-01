@@ -1,10 +1,10 @@
 #include "OpenGL.h"
+#include "OpenGL_Pointers.h"
 #include "Callback.h"
 #include "Console.h"
 #include "Patch.h"
 
-// suppress "no return value"
-#pragma warning( disable: 4035 ) 
+#pragma warning( disable : 4035 ) // suppress "no return value"
 
 namespace Loader {
 	extern u32 Crashed;
@@ -131,11 +131,13 @@ namespace OpenGL {
 			push dword ptr GL_TEXTURE1_ARB
 			call[ebx + 8] // glActiveTextureARB( GL_TEXTURE1_ARB );
 			push dword ptr GL_TEXTURE_2D
-			call ds : [OPENGL32_GLDISABLE] // glDisable( GL_TEXTURE_2D );
+			mov esi, OpenGLPtrs::ptr_OPENGL32_GLDISABLE
+			call ds:[esi] // glDisable( GL_TEXTURE_2D );
 			push dword ptr GL_TEXTURE0_ARB
 			call[ebx + 8] // glActiveTextureARB( GL_TEXTURE0_ARB );
 			push dword ptr GL_TEXTURE_2D
-			call ds : [OPENGL32_GLDISABLE] // glDisable( GL_TEXTURE_2D );
+			mov esi, OpenGLPtrs::ptr_OPENGL32_GLDISABLE
+			call ds:[esi] // glDisable( GL_TEXTURE_2D );
 		}
 	}
 
@@ -163,21 +165,24 @@ namespace OpenGL {
 	}
 
 	void OnStarted(bool active) {
-		_wglMakeCurrent = (void*)Patch::ReplaceHook((void*)OPENGL32_WGLMAKECURRENT, &wglMakeCurrent);
-		_glTexParameteri = (void*)Patch::ReplaceHook((void*)OPENGL32_GLTEXPARAMETERI, &glTexParamateri);
-		_setAlphaSource = (void*)Patch::ReplaceHook((void*)OPENGL_SET_ALPHA_SOURCE, &setAlphaSource);
+		_wglMakeCurrent = (void*)Patch::ReplaceHook((void*)OpenGLPtrs::ptr_OPENGL32_WGLMAKECURRENT, &wglMakeCurrent);
+		_glTexParameteri = (void*)Patch::ReplaceHook((void*)OpenGLPtrs::ptr_OPENGL32_GLTEXPARAMETERI, &glTexParamateri);
+		_setAlphaSource = (void*)Patch::ReplaceHook((void*)OpenGLPtrs::ptr_OPENGL_SET_ALPHA_SOURCE, &setAlphaSource);
 	}
 
 	struct Init {
 		Init() {
+			if (VersionSnoop::GetVersion() != VERSION::v001004) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
 			Callback::attach(Callback::OnStarted, OnStarted);
 		}
 	} init;
 
 }; // namespace OpenGL
-
-
-
 
 
 /*
@@ -187,18 +192,18 @@ namespace OpenGL {
 void glBegin(GLenum mode) {
 	typedef void (GLAPIENTRY* fn)(GLenum mode);
 
-	(*(fn*)OPENGL32_GLBEGIN)(mode);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLBEGIN)(mode);
 }
 
 void glBindTexture(GLenum target, GLuint texture) {
 	typedef void (GLAPIENTRY* fn)(GLenum target, GLuint texture);
-	int* bound = (int*)(OPENGL_BOUND_TEXTURE);
+	int* bound = (int*)(OpenGLPtrs::ptr_OPENGL_BOUND_TEXTURE);
 	if (*bound == texture && OpenGL::mState->GL_BOUNDTEXTURE0 == texture)
 		return;
 	*bound = (texture);
 	OpenGL::mState->GL_BOUNDTEXTURE0 = (texture);
 
-	(*(fn*)OPENGL32_GLBINDTEXTURE)(target, texture);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLBINDTEXTURE)(target, texture);
 }
 
 void glBlendFunc(GLenum sfactor, GLenum dfactor) {
@@ -206,32 +211,32 @@ void glBlendFunc(GLenum sfactor, GLenum dfactor) {
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLenum sfactor, GLenum dfactor);
-	(*(fn*)OPENGL32_GLBLENDFUNC)(sfactor, dfactor);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLBLENDFUNC)(sfactor, dfactor);
 }
 
 void glCallLists(GLsizei n, GLenum type, const GLvoid* lists) {
 	typedef void (GLAPIENTRY* fn)(GLsizei n, GLenum type, const GLvoid* lists);
-	(*(fn*)OPENGL32_GLCALLLISTS)(n, type, lists);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLCALLLISTS)(n, type, lists);
 }
 
 void glCallList(GLuint list) {
 	typedef void (GLAPIENTRY* fn)(GLuint a);
-	(*(fn*)OPENGL32_GLCALLLIST)(list);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLCALLLIST)(list);
 }
 
 void glColor3ub(GLubyte red, GLubyte green, GLubyte blue) {
 	typedef void (GLAPIENTRY* fn)(GLubyte red, GLubyte green, GLubyte blue);
-	(*(fn*)OPENGL32_GLCOLOR3UB)(red, green, blue);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLCOLOR3UB)(red, green, blue);
 }
 
 void glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) {
 	typedef void (GLAPIENTRY* fn)(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
-	(*(fn*)OPENGL32_GLCOLOR4UB)(red, green, blue, alpha);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLCOLOR4UB)(red, green, blue, alpha);
 }
 
 void glColorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a) {
 	typedef void (GLAPIENTRY* fn)(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
-	(*(fn*)OPENGL32_GLCOLORMASK)(r, g, b, a);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLCOLORMASK)(r, g, b, a);
 }
 
 void glDeleteLists(GLuint list, GLsizei range) {
@@ -239,32 +244,30 @@ void glDeleteLists(GLuint list, GLsizei range) {
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLuint list, GLsizei range);
-	(*(fn*)OPENGL32_GLDELETELISTS)(list, range);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDELETELISTS)(list, range);
 }
-
 
 void glDeleteTextures(GLsizei n, const GLuint* textures) {
 	if (Loader::Crashed)
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLsizei n, const GLuint* textures);
-	(*(fn*)OPENGL32_GLDELETETEXTURES)(n, textures);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDELETETEXTURES)(n, textures);
 }
-
 
 void glDepthFunc(GLenum func) {
 	typedef void (GLAPIENTRY* fn)(GLenum func);
-	(*(fn*)OPENGL32_GLDEPTHFUNC)(func);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDEPTHFUNC)(func);
 }
 
 void glDepthMask(GLboolean flag) {
 	typedef void (GLAPIENTRY* fn)(GLboolean flag);
-	(*(fn*)OPENGL32_GLDEPTHMASK)(flag);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDEPTHMASK)(flag);
 }
 
 void glDepthRange(GLclampd znear, GLclampd zfar) {
 	typedef void (GLAPIENTRY* fn)(GLclampd znear, GLclampd zfar);
-	(*(fn*)OPENGL32_GLDEPTHRANGE)(znear, zfar);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDEPTHRANGE)(znear, zfar);
 }
 
 void glDisable(GLenum cap) {
@@ -272,12 +275,12 @@ void glDisable(GLenum cap) {
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLenum cap);
-	(*(fn*)OPENGL32_GLDISABLE)(cap);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDISABLE)(cap);
 }
 
 void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum pixeltype, const GLvoid* pixels) {
 	typedef void (GLAPIENTRY* fn)(GLsizei width, GLsizei height, GLenum format, GLenum pixeltype, const GLvoid* pixels);
-	(*(fn*)OPENGL32_GLDRAWPIXELS)(width, height, format, pixeltype, pixels);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLDRAWPIXELS)(width, height, format, pixeltype, pixels);
 }
 
 void glEnable(GLenum cap) {
@@ -285,143 +288,137 @@ void glEnable(GLenum cap) {
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLenum cap);
-	(*(fn*)OPENGL32_GLENABLE)(cap);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLENABLE)(cap);
 }
 
 void glEnd() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLEND)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLEND)();
 }
 
 void glEndList() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLENDLIST)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLENDLIST)();
 }
-
 
 void glFlush() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLFLUSH)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLFLUSH)();
 }
 
 GLenum glGetError() {
 	typedef GLenum(GLAPIENTRY* fn)();
-	return (*(fn*)OPENGL32_GLGETERROR)();
+	return (*(fn*)OpenGLPtrs::ptr_OPENGL32_GLGETERROR)();
 }
 
 GLuint glGenLists(GLsizei range) {
 	typedef GLuint(GLAPIENTRY* fn)(GLsizei range);
-	return (*(fn*)OPENGL32_GLGENLISTS)(range);
+	return (*(fn*)OpenGLPtrs::ptr_OPENGL32_GLGENLISTS)(range);
 }
 
 void glGenTextures(GLsizei n, GLuint* textures) {
 	typedef void (GLAPIENTRY* fn)(GLsizei n, GLuint* textures);
-	(*(fn*)OPENGL32_GLGENTEXTURES)(n, textures);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLGENTEXTURES)(n, textures);
 }
 
 void glGetIntegerv(GLenum pname, GLint* params) {
 	typedef void (GLAPIENTRY* fn)(GLenum pname, GLint* params);
-	(*(fn*)OPENGL32_GLGETINTEGERV)(pname, params);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLGETINTEGERV)(pname, params);
 }
 
 void glGetTexEnviv(GLenum target, GLenum pname, GLint* params) {
 	typedef void (GLAPIENTRY* fn)(GLenum target, GLenum pname, GLint* params);
-	(*(fn*)OPENGL32_GLGETTEXENVIV)(target, pname, params);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLGETTEXENVIV)(target, pname, params);
 }
 
 void glListBase(GLuint base) {
 	typedef void (GLAPIENTRY* fn)(GLuint base);
-	(*(fn*)OPENGL32_GLLISTBASE)(base);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLLISTBASE)(base);
 }
 
 void glLoadIdentity() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLLOADIDENTITY)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLLOADIDENTITY)();
 }
 
 void glPixelMapusv(GLenum map, GLsizei mapsize, const GLushort* values) {
 	typedef void (GLAPIENTRY* fn)(GLenum map, GLsizei mapsize, const GLushort* values);
-	(*(fn*)OPENGL32_GLPIXELMAPUSV)(map, mapsize, values);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPIXELMAPUSV)(map, mapsize, values);
 }
 
 void glMatrixMode(GLenum mode) {
 	typedef void (GLAPIENTRY* fn)(GLenum mode);
-	(*(fn*)OPENGL32_GLMATRIXMODE)(mode);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLMATRIXMODE)(mode);
 }
 
 void glNewList(GLuint list, GLenum mode) {
 	typedef void (GLAPIENTRY* fn)(GLuint list, GLenum mode);
-	(*(fn*)OPENGL32_GLNEWLIST)(list, mode);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLNEWLIST)(list, mode);
 }
 
 void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble znear, GLdouble zfar) {
 	typedef void (GLAPIENTRY* fn)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble znear, GLdouble zfar);
-	(*(fn*)OPENGL32_GLORTHO)(left, right, bottom, top, znear, zfar);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLORTHO)(left, right, bottom, top, znear, zfar);
 }
 
 void glPixelTransferi(GLenum pname, GLint param) {
 	typedef void (GLAPIENTRY* fn)(GLenum pname, GLint param);
-	(*(fn*)OPENGL32_GLPIXELTRANSFERI)(pname, param);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPIXELTRANSFERI)(pname, param);
 }
 
 void glPopMatrix() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLPOPMATRIX)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPOPMATRIX)();
 }
 
 void glPopAttrib() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLPOPATTRIB)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPOPATTRIB)();
 }
-
 
 void glPushAttrib(GLenum attrib) {
 	typedef void (GLAPIENTRY* fn)(GLenum attrib);
-	(*(fn*)OPENGL32_GLPUSHATTRIB)(attrib);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPUSHATTRIB)(attrib);
 }
 
 void glPushMatrix() {
 	typedef void (GLAPIENTRY* fn)();
-	(*(fn*)OPENGL32_GLPUSHMATRIX)();
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLPUSHMATRIX)();
 }
-
 
 void glRasterPos2i(GLint x, GLint y) {
 	typedef void (GLAPIENTRY* fn)(GLint x, GLint y);
-	(*(fn*)OPENGL32_GLRASTERPOS2I)(x, y);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLRASTERPOS2I)(x, y);
 }
 
 void glReadBuffer(GLenum mode) {
 	typedef void (GLAPIENTRY* fn)(GLenum mode);
-	(*(fn*)OPENGL32_GLREADBUFFER)(mode);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLREADBUFFER)(mode);
 }
 
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum pixeltype, const GLvoid* pixels) {
 	typedef void (GLAPIENTRY* fn)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum pixeltype, const GLvoid* pixels);
-	(*(fn*)OPENGL32_GLREADPIXELS)(x, y, width, height, format, pixeltype, pixels);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLREADPIXELS)(x, y, width, height, format, pixeltype, pixels);
 }
-
 
 void glScalef(GLfloat x, GLfloat y, GLfloat z) {
 	typedef void (GLAPIENTRY* fn)(GLfloat x, GLfloat y, GLfloat z);
-	(*(fn*)OPENGL32_GLSCALEF)(x, y, z);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLSCALEF)(x, y, z);
 }
-
 
 void glScissor(GLint x, GLint y, GLsizei width, GLsizei height) {
 	typedef void (GLAPIENTRY* fn)(GLint x, GLint y, GLsizei width, GLsizei height);
-	(*(fn*)OPENGL32_GLSCISSOR)(x, y, width, height);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLSCISSOR)(x, y, width, height);
 }
-
 
 void glTexCoord2f(GLfloat s, GLfloat t) {
 	typedef void (GLAPIENTRY* fn)(GLfloat s, GLfloat t);
-	(*(fn*)OPENGL32_GLTEXCOORD2F)(s, t);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTEXCOORD2F)(s, t);
 }
 
 void glTexCoord2fv(Vector2f* v) {
 	typedef void (GLAPIENTRY* fn)(Vector2f* v);
-	(*(fn*)OPENGL32_GLTEXCOORD2FV)(v);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTEXCOORD2FV)(v);
 }
 
 void glTexEnvi(GLenum target, GLenum pname, GLint param) {
@@ -429,17 +426,17 @@ void glTexEnvi(GLenum target, GLenum pname, GLint param) {
 		return;
 
 	typedef void (GLAPIENTRY* fn)(GLenum target, GLenum pname, GLint param);
-	(*(fn*)OPENGL32_GLTEXENVI)(target, pname, param);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTEXENVI)(target, pname, param);
 }
 
 void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels) {
 	typedef void (GLAPIENTRY* fn)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels);
-	(*(fn*)OPENGL32_GLTEXIMAGE2D)(target, level, internalformat, width, height, border, format, type, pixels);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTEXIMAGE2D)(target, level, internalformat, width, height, border, format, type, pixels);
 }
 
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels) {
 	typedef void (GLAPIENTRY* fn)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid* pixels);
-	(*(fn*)OPENGL32_GLTEXSUBIMAGE2D)(target, level, xoffset, yoffset, width, height, format, type, pixels);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTEXSUBIMAGE2D)(target, level, xoffset, yoffset, width, height, format, type, pixels);
 }
 
 void glTexParameteri(GLenum target, GLenum pname, GLint param) {
@@ -450,27 +447,27 @@ void glTexParameteri(GLenum target, GLenum pname, GLint param) {
 
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z) {
 	typedef void (GLAPIENTRY* fn)(GLfloat x, GLfloat y, GLfloat z);
-	(*(fn*)OPENGL32_GLTRANSLATEF)(x, y, z);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLTRANSLATEF)(x, y, z);
 }
-
 
 void glVertex2f(GLfloat x, GLfloat y) {
 	typedef void (GLAPIENTRY* fn)(GLfloat x, GLfloat y);
-	(*(fn*)OPENGL32_GLVERTEX2F)(x, y);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLVERTEX2F)(x, y);
 }
 
 void glVertex2fv(Vector2f* v) {
 	typedef void (GLAPIENTRY* fn)(Vector2f* v);
-	(*(fn*)OPENGL32_GLVERTEX2FV)(v);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLVERTEX2FV)(v);
 }
-
 
 void glVertex2i(GLint x, GLint y) {
 	typedef void (GLAPIENTRY* fn)(GLint x, GLint y);
-	(*(fn*)OPENGL32_GLVERTEX2I)(x, y);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLVERTEX2I)(x, y);
 }
 
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z) {
 	typedef void (GLAPIENTRY* fn)(GLfloat x, GLfloat y, GLfloat z);
-	(*(fn*)OPENGL32_GLVERTEX3F)(x, y, z);
+	(*(fn*)OpenGLPtrs::ptr_OPENGL32_GLVERTEX3F)(x, y, z);
 }
+
+#pragma warning( default : 4035 )

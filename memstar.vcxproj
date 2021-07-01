@@ -111,6 +111,7 @@
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="MS_Stub.cpp" />
     <ClCompile Include="OpenGL.cpp" />
+    <ClCompile Include="OpenGL_Pointers.cpp" />
     <ClCompile Include="PlayGui.cpp" />
     <ClCompile Include="Replacer.cpp" />
     <ClCompile Include="ScriptGL.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="Memstar.h" />
     <ClInclude Include="MultiPointer.h" />
     <ClInclude Include="OpenGL.h" />
+    <ClInclude Include="OpenGL_Pointers.h" />
     <ClInclude Include="Originals.h" />
     <ClInclude Include="Replacer.h" />
     <ClInclude Include="resource.h" />

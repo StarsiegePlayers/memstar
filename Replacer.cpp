@@ -6,28 +6,25 @@
 #include "Patch.h"
 #include "Callback.h"
 #include "Terrain.h"
+#include "OpenGL_Pointers.h"
 
 namespace Replacer {
 
-#define OPENGL_FLUSH_TEXTURE_VFT 0x0072A748
-
 #include "Originals.h"
 
-	typedef HashTable<
-		String, TextureWithMips*,
-		IKeyCmp,
-		ValueDeleter<String, TextureWithMips*>
-	> ReplacementHash;
+	MultiPointer(ptr_OPENGL_FLUSH_TEXTURE_VFT, 0, 0, 0x0071a15c, 0x0072A748);
 
+	BuiltInVariable("pref::ShowMatchedTextures", bool, prefShowMatchedTextures, false);
+
+	typedef HashTable< String, TextureWithMips*, IKeyCmp, ValueDeleter<String, TextureWithMips*> > ReplacementHash;
 	typedef HashTable< u32, String > OriginalHash;
 
-	BuiltInVariable("pref::showMatchedTextures", bool, prefShowMatchedTextures, false)
-
-		bool lastScanMatched = false;
+	bool lastScanMatched = false;
 	bool foundLastCRC = false;
 	bool ignoreTexImageMips = false;
 	bool ignoreTexSubImageMips = false;
 	bool lastNonMipMatched = false;
+
 	u32 lastFoundCRC = 0;
 	TextureWithMips* lastMatchedTexture = NULL, * lastUsedTexture = NULL;
 	FileSystem mFiles(128);
@@ -82,8 +79,11 @@ namespace Replacer {
 
 		lastFoundCRC = HashBytes(bmp->bitmapData, bmp->width * bmp->height);
 		const String* file = FindOriginalName(lastFoundCRC);
-		if (file != NULL)
+#if _DEBUG
+		if (file != NULL) {
 			Console::echo("Matched texture %s", file->c_str());
+		}
+#endif
 		foundLastCRC = (file != NULL);
 		lastMatchedTexture = FindReplacement(file);
 		lastScanMatched = (lastMatchedTexture != NULL);
@@ -112,11 +112,13 @@ namespace Replacer {
 
 
 	u32 fnglTexImage2D, fnglTexSubImage2D, fnFlushTexture;
-	u32 fnResumeCacheBitmap = 0x0064D822;
-	u32 fnIsFromCurrentRound = 0x0064CFAC;
 
+	MultiPointer(fnResumeCacheBitmap, 0, 0, 0x0063e71a, 0x0064D822);
+	MultiPointer(fnIsFromCurrentRound, 0, 0, 0x0063dedc, 0x0064CFAC);
+
+	MultiPointer(ptr_cacheBitmapPatch, 0, 0, 0x0063e714, 0x0064D81C);
 	CodePatch cacheBitmapPatch = {
-		0x0064D81C,
+		ptr_cacheBitmapPatch,
 		"",
 		"\xE9tccb",
 		5,
@@ -259,22 +261,28 @@ namespace Replacer {
 			((fn)fnglTexSubImage2D)(target, level, xoffset, yoffset, width, height, format, type, pixels);
 	}
 
-
 	void OnStarted(bool state) {
 		Open();
 
-		for (int i = 0; i < __ORIGINAL_COUNT__; i++)
+		for (int i = 0; i < __ORIGINAL_COUNT__; i++) {
 			mOriginals.Insert(mOriginalsTable[i].mCrc, String2(mOriginalsTable[i].mName));
+		}
 
-		fnglTexImage2D = Patch::ReplaceHook((void*)OPENGL32_GLTEXIMAGE2D, OnGlTexImage2D);
-		fnglTexSubImage2D = Patch::ReplaceHook((void*)OPENGL32_GLTEXSUBIMAGE2D, OnGlTexSubImage2D);
-		fnFlushTexture = Patch::ReplaceHook((void*)OPENGL_FLUSH_TEXTURE_VFT, OnFlushTexture);
+		fnglTexImage2D = Patch::ReplaceHook((void*)OpenGLPtrs::ptr_OPENGL32_GLTEXIMAGE2D, OnGlTexImage2D);
+		fnglTexSubImage2D = Patch::ReplaceHook((void*)OpenGLPtrs::ptr_OPENGL32_GLTEXSUBIMAGE2D, OnGlTexSubImage2D);
+		fnFlushTexture = Patch::ReplaceHook((void*)ptr_OPENGL_FLUSH_TEXTURE_VFT, OnFlushTexture);
 
 		cacheBitmapPatch.DoctorRelative((u32)&OnCacheBitmap, 1).Apply(true);
 	}
 
 	struct Init {
 		Init() {
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() < VERSION::v001003) {
+				return;
+			}
 			Callback::attach(Callback::OnStarted, OnStarted);
 		}
 	} init;

@@ -150,7 +150,6 @@ void TargaHeader::LoadRGB(unsigned char* input, RGBA* pixels) {
 	Texture
 */
 
-
 /*
 	Gaussian blurs the alpha channel and adds it back to the
 	original image. About as fast as it's going to get..
@@ -342,7 +341,6 @@ void Texture::DrawPartial(float x, float y, float percent, int flags) {
 	glEnd( );
 	*/
 }
-
 
 void Texture::DrawRotated(float x, float y, float scale_x, float scale_y, float rotation) {
 	if (!BindToGraphicsCard())
@@ -547,10 +545,6 @@ void Texture::UnloadFromGraphicsCard() {
 }
 
 
-
-
-
-
 /*
 	TextureWithMips
 */
@@ -733,6 +727,12 @@ namespace TexturePurger {
 
 	struct Init {
 		Init() {
+			if (VersionSnoop::GetVersion() == VERSION::vNotGame) {
+				return;
+			}
+			if (VersionSnoop::GetVersion() < VERSION::v001003) {
+				return;
+			}
 			Callback::attach(Callback::OnOpenGL, OnOpenGL);
 		}
 	} init;

@@ -34,6 +34,7 @@ private:
 MultiPtr mptr_##__name__ = { __val1__, __val2__, __val3__, __val4__ };           \
 static const u32 __name__ = mptr_##__name__##.Get()
 
-
+#define MultiPointer_Ext(__name__)       \
+extern const u32 __name__
 
 #endif
