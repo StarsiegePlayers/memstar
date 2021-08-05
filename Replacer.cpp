@@ -79,11 +79,9 @@ namespace Replacer {
 
 		lastFoundCRC = HashBytes(bmp->bitmapData, bmp->width * bmp->height);
 		const String* file = FindOriginalName(lastFoundCRC);
-#if _DEBUG
-		if (file != NULL) {
+		if (prefShowMatchedTextures != true) {
 			Console::echo("Matched texture %s", file->c_str());
 		}
-#endif
 		foundLastCRC = (file != NULL);
 		lastMatchedTexture = FindReplacement(file);
 		lastScanMatched = (lastMatchedTexture != NULL);
