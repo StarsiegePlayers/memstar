@@ -26,14 +26,14 @@
 
 //#define VER_SPECIAL_STR             ""
 //#define VER_PRIVATE_STR             ""
-#define VER_COMMENT_STR             "StarsiegePlayers Build on 2021-07-01"
+#define VER_COMMENT_STR             "StarsiegePlayers Build on 2021-08-05"
 
 // Required Information
-#define VER_FILEVERSION             1,1,0,0
-#define VER_FILEVERSIONSTR          1.1.0.0
+#define VER_FILEVERSION             1,1,0,1
+#define VER_FILEVERSIONSTR          1.1.0.1
 
-#define VER_PRODUCTVERSION          1,1,0,0
-#define VER_PRODUCTVERSIONSTR       1.1.0.0
+#define VER_PRODUCTVERSION          1,1,0,1
+#define VER_PRODUCTVERSIONSTR       1.1.0.1
 
 #define VER_COMPANYNAME_STR         "Starsiege Players Community"
 #define VER_PRODUCTNAME_STR         "mem.dll replacement for Starsiege"
